@@ -48,3 +48,9 @@ Thumbs.db
 *.mov
 *.wmv
 
+# Latex temp files
+*.blg
+*.aux
+*.log
+*.bbl
+*.out

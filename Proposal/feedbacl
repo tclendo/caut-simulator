@@ -1,0 +1,8 @@
+Overall, this is a good proposal, with the right information and deliverables - a timeline would have made it more complete.
+
+The project idea is good, but I am a little concerned that the use of a PGAS model takes away some of the parallel programming aspect - I expect that PGAS will be easy to code but yield poor performance. 
+One suggestion I haves is using the PGAS-based implementation as the baseline and try to improve it using MPI.
+I think this will be possible given the three-person team.
+
+Please let me know if you agree to this, and if not, provide some justification as to why this could be a full workload for a project (I may have missed some details in the proposal).
+You can email me or come see me during office hours.

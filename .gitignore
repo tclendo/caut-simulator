@@ -23,8 +23,8 @@ dist/
 target/
 dist/
 
-# Vim temp files
-*.un~
+# Vim and Emacs temp files
+*~
 
 # JetBrains IDE
 .idea/

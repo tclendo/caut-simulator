@@ -27,6 +27,15 @@ int main(int argc, char** argv) {
   
   Grid* grid = read_file(initial_state, argv[1]);
   
+  // set the live cell vector in the grid class
+  grid->Set_Live_Cells(initial_state);
+  
+  // print just to make sure everything works as intended;
+  grid->Print_Live_Cells();
+
+  // verify that we've initialized the grid properly
+  grid->Curr_Print();
+
   delete grid;
 
   return 0;
@@ -85,6 +94,8 @@ Grid* read_file(vector <Cell*> &init, char* in_file) {
     // we also want to add this to our vector of live cells
     init.push_back(input_cell);
   }
+
+  cout << "Grid initialized with " << init.size() << " live cells." << endl;
 
   return grid;
 }

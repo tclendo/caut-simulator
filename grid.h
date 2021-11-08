@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstdlib>
+#include <utility>
 #include <vector>
 
 #include "cell.h"
@@ -19,6 +20,11 @@ public:
 
   // get the cell pointer from a given coordinate
   Cell* Get_Cell(unsigned int x, unsigned int y) { return cellArray[x][y]; }
+
+  // set the live cell vector. note this should only ever be called once by main
+  // TODO: method to edit this vector? not sure how best to do this yet.
+  void Set_Live_Cells (std::vector <Cell*> live) { live_cells = std::move(live); }
+  void Print_Live_Cells();
 
   //pointer to the entire grid of cells
   Cell*** cellArray;

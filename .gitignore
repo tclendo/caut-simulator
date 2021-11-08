@@ -25,6 +25,7 @@ dist/
 
 # Vim and Emacs temp files
 *~
+.cache/
 
 # JetBrains IDE
 .idea/

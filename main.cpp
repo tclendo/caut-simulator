@@ -36,8 +36,20 @@ int main(int argc, char** argv) {
   // verify that we've initialized the grid properly
   grid->Curr_Print();
 
+  /*
+    TODO:
+
+    This is the section where we will begin the simulation.
+    Everything is initialized up to this point,
+    now it's up to the simulation to begin based on the ruleset.
+
+    For now, we are just doing Game of Life.
+   */
+
+  // Delete the new grid from memory
   delete grid;
 
+  // Program run successfully.
   return 0;
 }
 
@@ -64,6 +76,7 @@ Grid* read_file(vector <Cell*> &init, char* in_file) {
   unsigned int columns;
   
   // the first 2 words in the file will be the rows and columns of the grid
+  // TODO: error checking for bad input
   init_line >> rows >> columns;
   cout << "Rows: " << rows << endl;
   cout << "Columns: " << columns << endl;
@@ -71,10 +84,6 @@ Grid* read_file(vector <Cell*> &init, char* in_file) {
   // initialize our grid of all empty cells
   Grid* grid = new Grid(rows, columns);
 
-  // from here on, we are going to be adding a live cell with
-  // an x and y coordinate into our vector.
-
-  // This vector will be used to instantiate the simulation
   // Create a new live cell based on the x y coordinates from each input line
   while (getline(file, line)) {
 

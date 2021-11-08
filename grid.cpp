@@ -25,11 +25,21 @@ Grid::Grid(unsigned int rows, unsigned int cols){
 	}
 }
 
-void Grid:: Print(){
+void Grid:: Prev_Print(){
 	
 	for(int i=0; i<rows; ++i){
 		for(int j=0; j<cols; ++j){
-			cout<<" "<<cellArray[i][j]->GetState()<<" ";
+			cout<<" "<<cellArray[i][j]->Get_Prev_State()<<" ";
+		}
+		cout<<endl;
+	}
+}
+
+void Grid:: Curr_Print(){
+	
+	for(int i=0; i<rows; ++i){
+		for(int j=0; j<cols; ++j){
+			cout<<" "<<cellArray[i][j]->Get_Curr_State()<<" ";
 		}
 		cout<<endl;
 	}
@@ -48,15 +58,3 @@ Grid::~Grid(){
 
 }
 
-Cell::Cell(){
-	//default cell state
-	state = 0;
-}
-
-void Cell::SetState(int state){
-	this->state = state;
-}
-
-int Cell::GetState(){
-	return state;
-}

@@ -19,8 +19,7 @@ int main(int argc, char* argv[]){
 	//we need two grids so that when we update a new iteration
 	//we have something to refernce back to
 	//at the end of every computation the prev_Grid
-	Grid prev_Grid(rows, cols);
-	Grid curr_Grid(rows, cols);	
+	Grid grid(rows, cols);
 	srand(time(NULL));
 	
 	
@@ -33,10 +32,9 @@ int main(int argc, char* argv[]){
 		//get a random col index
 		unsigned int rand_cols = rand() % cols;
 
-		prev_Grid.cellArray[rand_rows][rand_cols]->SetState(1);
-		curr_Grid.cellArray[rand_rows][rand_cols]->SetState(1);
+		grid.cellArray[rand_rows][rand_cols]->Set_Prev_State(1);
 	}
-	
+		
 	cout<<"Enter 1 to continue and 0 to stop\n";
 	int entry = 1;
 	while(entry != 0){
@@ -50,7 +48,7 @@ int main(int argc, char* argv[]){
 					//used to update current cells state
 				}
 			}
-			prev_Grid.Print();
+			grid.Prev_Print();
 
 /*			//this is where we would update prev grid once we are done using it to form curr grid 
  			//this method may be inefficient but for now it does the trick

@@ -3,11 +3,15 @@ class Cell {
 	
 	public:
 		Cell();
-		void SetState(int state);
-		int GetState();
+		void Set_Curr_State(int state);
+		void Set_Prev_State(int state);
+
+		int Get_Curr_State();
+		int Get_Prev_State();
 	
 	private:
-		int state;
+		int curr_state;
+		int prev_state;
 };
 
 class Grid {
@@ -18,7 +22,8 @@ class Grid {
 		//the array of cells
 		Grid(unsigned int rows, unsigned int col);
 		~Grid();
-		void Print();
+		void Prev_Print();
+		void Curr_Print();
 		//pointer to arrays of cells dynamically allocated cells
 		Cell*** cellArray;
 

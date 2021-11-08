@@ -1,4 +1,4 @@
-#include "classes.h"
+#include "cell.h"
 
 Cell::Cell(){
 	//default cell state

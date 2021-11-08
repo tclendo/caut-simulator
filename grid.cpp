@@ -1,6 +1,7 @@
 #include <iostream>
 #include <stdlib.h>
-#include "classes.h"
+
+#include "grid.h"
 
 using namespace std;
 

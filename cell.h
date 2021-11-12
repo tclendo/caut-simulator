@@ -11,6 +11,10 @@ public:
   int Get_X_Coord() const { return x; }
   int Get_Y_Coord() const { return y; }
 
+  void Add_Neighbor() { live_neighbors += 1; }
+  void Remove_Neighbor() { live_neighbors = 0; }
+  unsigned int Get_Neighbors() { return live_neighbors; }
+
 private:
 
   unsigned int x;
@@ -18,4 +22,6 @@ private:
 
   int curr_state;
   int next_state;
+
+  unsigned int live_neighbors;
 };

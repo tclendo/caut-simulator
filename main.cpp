@@ -34,7 +34,6 @@ int main(int argc, char** argv) {
   grid->Print_Live_Cells();
 
   // verify that we've initialized the grid properly
-  grid->Curr_Print();
 
   /*
     TODO:
@@ -45,6 +44,7 @@ int main(int argc, char** argv) {
 
     For now, we are just doing Game of Life.
    */
+  grid->Run_Simulation(stoi(argv[2]));
 
   // Delete the new grid from memory
   delete grid;
@@ -55,8 +55,8 @@ int main(int argc, char** argv) {
 
 void usage(int argc, char** argv) {
 
-  if (argc != 2) {
-    cerr << "Usage: ./caut <inputfile>.caut" << endl;
+  if (argc < 3) {
+    cerr << "Usage: ./caut <inputfile>.caut <number_of_generations>" << endl;
     exit(EXIT_FAILURE);
   }
 
@@ -82,7 +82,7 @@ Grid* read_file(vector <Cell*> &init, char* in_file) {
   cout << "Columns: " << columns << endl;
 
   // initialize our grid of all empty cells
-  Grid* grid = new Grid(rows, columns);
+  Grid* grid = new Grid(rows, columns, 1);
 
   // Create a new live cell based on the x y coordinates from each input line
   while (getline(file, line)) {

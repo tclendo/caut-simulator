@@ -32,7 +32,7 @@ int main(int argc, char* argv[]){
 		//get a random col index
 		unsigned int rand_cols = rand() % cols;
 
-		grid.cellArray[rand_rows][rand_cols]->Set_Prev_State(1);
+		grid.cellArray[rand_rows][rand_cols]->Set_Curr_State(1);
 	}
 		
 	cout<<"Enter 1 to continue and 0 to stop\n";
@@ -48,7 +48,7 @@ int main(int argc, char* argv[]){
 					//used to update current cells state
 				}
 			}
-			grid.Prev_Print();
+			grid.Curr_Print();
 
 /*			//this is where we would update prev grid once we are done using it to form curr grid 
  			//this method may be inefficient but for now it does the trick

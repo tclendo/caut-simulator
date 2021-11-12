@@ -8,7 +8,7 @@ Grid::Grid(unsigned int rows, unsigned int cols){
   this->cols = cols;
   //malloc whole block for the grid
   //cellArray = (Cell***) malloc(sizeof(Cell**)*rows);
-  cellArray = new Cell*[rows];
+  cellArray = new Cell**[rows];
 	
   //loop through cellArray instantiating cell objects
   //in theory we could simply use integer values instead of classes
@@ -17,7 +17,7 @@ Grid::Grid(unsigned int rows, unsigned int cols){
     
     //malloc each row
     //cellArray[i] = (Cell**) malloc(sizeof(Cell*)*cols);
-	cellArray[i] = new Cell[cols];
+	cellArray[i] = new Cell*[cols];
     for(int j=0; j<cols; ++j){
       //instantiate objects in the row
       cellArray[i][j] = new Cell(i, j);
@@ -48,6 +48,7 @@ void Grid::Curr_Print() {
     }
     cout << endl;
   }
+
 }
 
 void Grid::Next_Print(){
@@ -70,4 +71,9 @@ void Grid::Print_Live_Cells() {
 	 << cell->Get_Curr_State() << " -> "
 	 << cell->Get_Next_State() << endl;
   }
+}
+
+inline bool Grid::Is_Safe_Coord(unsigned int x, unsigned int y) {
+  return ((x < cols) && (y < rows));
+
 }

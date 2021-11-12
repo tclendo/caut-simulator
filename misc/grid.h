@@ -19,6 +19,7 @@ public:
   void Get_Live_Cells();
 
   // get the cell pointer from a given coordinate
+  //Cell* Get_Cell(unsigned int x, unsigned int y) { return cellArray[x][y]; }
   Cell* Get_Cell(unsigned int x, unsigned int y) { return cellArray[x][y]; }
 
   // set the live cell vector. note this should only ever be called once by main
@@ -35,4 +36,6 @@ private:
   unsigned int num_cells;
 
   std::vector<Cell*> live_cells;
+  inline bool Is_Safe_Coord(unsigned int x, unsigned int y);
+
 };

@@ -1,7 +1,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <time.h>
-#include "classes.h"
+#include "grid.h"
 
 using namespace std;
 void usage();

@@ -2,12 +2,13 @@
 
 using namespace std;
 
-Grid::Grid(unsigned int rows, unsigned int cols){
+Grid::Grid(unsigned int rows, unsigned int cols, unsigned int ruleSet){
 	
   this->rows = rows;
   this->cols = cols;
-  //malloc whole block for the grid
-  //cellArray = (Cell***) malloc(sizeof(Cell**)*rows);
+	this->ruleSet = ruleSet;
+
+  //allocate whole block for the grid
   cellArray = new Cell**[rows];
 	
   //loop through cellArray instantiating cell objects
@@ -15,8 +16,7 @@ Grid::Grid(unsigned int rows, unsigned int cols){
   //but with classes we allow for more complexity with later implementations
   for(int i=0; i<rows; ++i){
     
-    //malloc each row
-    //cellArray[i] = (Cell**) malloc(sizeof(Cell*)*cols);
+  //allocate each row
 	cellArray[i] = new Cell*[cols];
     for(int j=0; j<cols; ++j){
       //instantiate objects in the row
@@ -42,13 +42,22 @@ void Grid::Curr_Print() {
   // TODO: Remember how this is inefficient due to cache lines
   // potentially need to figure out the most efficient way to do this.
   // Maybe not here in print, but when performing simulation actions.
-  for(int i=rows; i > 0; --i){
+/*	for(int i=rows; i > 0; --i){
     for(int j=0; j < cols; ++j){
       cout << " " << cellArray[j][i - 1]->Get_Curr_State() << " ";
     }
     cout << endl;
-  }
+  }*/
 
+	for(int i=0; i < rows; ++i){
+    for(int j=0; j < cols; ++j){
+			if(cellArray[i][j]->Get_Curr_State() == 1)
+      cout << " " <<"x"<< " ";
+			else	
+      	cout << " " <<" "<< " ";
+    }
+    cout << endl;
+	}
 }
 
 void Grid::Next_Print(){
@@ -73,7 +82,88 @@ void Grid::Print_Live_Cells() {
   }
 }
 
-inline bool Grid::Is_Safe_Coord(unsigned int x, unsigned int y) {
-  return ((x < cols) && (y < rows));
+//these needs to be ints not unsigned because signed values will be passed here
+inline bool Grid::Is_Safe_Coord(int x, int y) {
+	return (((x < cols) && (y < rows)) && ((x >= 0) && (y >= 0)));
+}
 
+void Grid::ApplyRules(){
+	
+	switch(ruleSet){
+	
+		case 1 :
+			ApplyGOL();
+			break;
+		
+		default:
+			cout<<"Undefined rule set defined rule sets are:"<<endl;
+			cout<<"1: Game of Life"<<endl;
+			exit(EXIT_FAILURE);
+	}
+
+	//all current states now need to be equal to next states
+	for(int i=0; i<rows; ++i){
+		for(int j=0; j<cols; ++j){
+			cellArray[i][j]->Set_Curr_State(cellArray[i][j]->Get_Next_State());
+		}
+	}
+	
+}
+
+void Grid::ApplyGOL(){
+	
+	//TODO: Modify this to work with the vector of live cells but for now just get it working 	
+	
+	for(int i=0; i<rows; ++i){
+		
+		for(int j=0; j<cols; ++j){
+			//count alive neighbors for each cell
+			unsigned int liveNeigh = 0;
+			
+			//bottm left
+			if(Is_Safe_Coord(j-1, i+1))
+				liveNeigh += cellArray[i+1][j-1]->Get_Curr_State();
+	
+			//left
+			if(Is_Safe_Coord(j-1, i))
+				liveNeigh += cellArray[i][j-1]->Get_Curr_State();
+
+			//top left
+			if(Is_Safe_Coord(j-1, i-1))
+				liveNeigh += cellArray[i-1][j-1]->Get_Curr_State();
+
+			//top
+			if(Is_Safe_Coord(j, i-1))
+				liveNeigh += cellArray[i-1][j]->Get_Curr_State();
+
+			//top right
+			if(Is_Safe_Coord(j+1, i-1))
+				liveNeigh += cellArray[i-1][j+1]->Get_Curr_State();
+
+			//right neighbor
+			if(Is_Safe_Coord(j+1, i))
+				liveNeigh += cellArray[i][j+1]->Get_Curr_State();
+
+			//bottom right
+			if(Is_Safe_Coord(j+1, i+1))
+				liveNeigh += cellArray[i+1][j+1]->Get_Curr_State();
+
+			//bottom	
+			if(Is_Safe_Coord(j+1, i))
+				liveNeigh += cellArray[i][j+1]->Get_Curr_State();
+
+			//now that we have summed up the amount of alive neighbors we can perform ops
+			
+			//if cell is dead and it has 3 or more live neighbors it becomes live
+			
+			unsigned int state = cellArray[i][j]->Get_Curr_State();
+			if(state == 0 && liveNeigh == 3){
+				cellArray[i][j]->Set_Next_State(1);
+			}
+			else if(state == 1 && (liveNeigh < 2 || liveNeigh > 3)){
+				cellArray[i][j]->Set_Next_State(0);
+			}
+
+		}
+	}
 }

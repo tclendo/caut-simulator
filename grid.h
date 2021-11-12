@@ -11,12 +11,13 @@ public:
   //grid constructor takes width and length and 
   //uses that to calculate num_cells and to instantiate
   //the array of cells
-  Grid(unsigned int rows, unsigned int col);
+  Grid(unsigned int rows, unsigned int col, unsigned int ruleSet);
   ~Grid();
   void Curr_Print();
   void Next_Print();
   void Get_Num_Cells();
   void Get_Live_Cells();
+	void ApplyRules();
 
   // get the cell pointer from a given coordinate
   //Cell* Get_Cell(unsigned int x, unsigned int y) { return cellArray[x][y]; }
@@ -34,8 +35,10 @@ private:
   unsigned int rows;
   unsigned int cols;
   unsigned int num_cells;
+	int ruleSet;
 
   std::vector<Cell*> live_cells;
-  inline bool Is_Safe_Coord(unsigned int x, unsigned int y);
+  inline bool Is_Safe_Coord(int x, int y);
+	void ApplyGOL();
 
 };

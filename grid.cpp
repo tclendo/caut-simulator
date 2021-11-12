@@ -73,7 +73,7 @@ void Grid::Print_Live_Cells() {
   }
 }
 
-bool Grid::Is_Safe_Coord(unsigned int x, unsigned int y) {
+inline bool Grid::Is_Safe_Coord(unsigned int x, unsigned int y) {
   return ((x < cols) && (y < rows));
 
 }

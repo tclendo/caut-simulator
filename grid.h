@@ -35,4 +35,6 @@ private:
   unsigned int num_cells;
 
   std::vector<Cell*> live_cells;
+  inline bool Is_Safe_Coord(unsigned int x, unsigned int y);
+
 };

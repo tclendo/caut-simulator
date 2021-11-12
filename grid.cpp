@@ -48,6 +48,7 @@ void Grid::Curr_Print() {
     }
     cout << endl;
   }
+
 }
 
 void Grid::Next_Print(){
@@ -70,4 +71,9 @@ void Grid::Print_Live_Cells() {
 	 << cell->Get_Curr_State() << " -> "
 	 << cell->Get_Next_State() << endl;
   }
+}
+
+inline bool Grid::Is_Safe_Coord(unsigned int x, unsigned int y) {
+  return ((x < cols) && (y < rows));
+
 }

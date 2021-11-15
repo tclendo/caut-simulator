@@ -50,12 +50,12 @@ int main(int argc, char* argv[]){
 
 	char key;
 	grid.Curr_Print();
-	cin>>key;
 	while(true){
 		
 		std::system("clear");
 		grid.Curr_Print();
 		grid.ApplyRules();
+		//cin>>key;
 		sleep(1);
 	}
 	return 0;
@@ -65,5 +65,5 @@ int main(int argc, char* argv[]){
 
 void usage(){
 
-	cout<<"Usage: ./testMain <rows> <cols> <amt of initial random cells>\n"<<endl;
+	cout<<"Usage: ./testMain <rows> <cols> <rule set>\n"<<endl;
 }

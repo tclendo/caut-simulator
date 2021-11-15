@@ -52,9 +52,9 @@ void Grid::Curr_Print() {
 	for(int i=0; i < rows; ++i){
     for(int j=0; j < cols; ++j){
 			if(cellArray[i][j]->Get_Curr_State() == 1)
-      cout << " " <<"x"<< " ";
+      cout <<" "<<"x"<<" ";
 			else	
-      	cout << " " <<" "<< " ";
+      	cout <<" "<<" "<<" ";
     }
     cout << endl;
 	}
@@ -151,19 +151,18 @@ void Grid::ApplyGOL(){
 			//bottom	
 			if(Is_Safe_Coord(j+1, i))
 				liveNeigh += cellArray[i][j+1]->Get_Curr_State();
-
-			//now that we have summed up the amount of alive neighbors we can perform ops
-			
-			//if cell is dead and it has 3 or more live neighbors it becomes live
 			
 			unsigned int state = cellArray[i][j]->Get_Curr_State();
 			if(state == 0 && liveNeigh == 3){
 				cellArray[i][j]->Set_Next_State(1);
 			}
-			else if(state == 1 && (liveNeigh < 2 || liveNeigh > 3)){
-				cellArray[i][j]->Set_Next_State(0);
+			else{ 
+				if(liveNeigh < 2 || liveNeigh > 3){
+					cellArray[i][j]->Set_Next_State(0);
+				}
+				else
+					cellArray[i][j]->Set_Next_State(1);
 			}
-
 		}
 	}
 }

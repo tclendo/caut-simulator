@@ -82,7 +82,7 @@ Grid* read_file(vector <Cell*> &init, char* in_file) {
   cout << "Columns: " << columns << endl;
 
   // initialize our grid of all empty cells
-  Grid* grid = new Grid(rows, columns);
+  Grid* grid = new Grid(rows, columns, 1);
 
   // Create a new live cell based on the x y coordinates from each input line
   while (getline(file, line)) {

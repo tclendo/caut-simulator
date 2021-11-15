@@ -44,6 +44,7 @@ private:
 
   inline bool Is_Safe_Coord(int x, int y);
   inline void Update_State(Cell* cell);
+
   void Prepare_Next(std::vector<Cell*> potential);
 
   void ApplyGOL();

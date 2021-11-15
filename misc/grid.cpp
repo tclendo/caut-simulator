@@ -30,9 +30,8 @@ Grid::~Grid(){
     for(int j=0; j<cols; ++j){
       delete cellArray[i][j];
     }
-		delete[] cellArray[i];
+    delete[] cellArray[i];
   }
-
   delete [] cellArray;
 }
 
@@ -49,15 +48,15 @@ void Grid::Curr_Print() {
     cout << endl;
   }*/
 
-	for(int i=0; i < rows; ++i){
+  for(int i=0; i < rows; ++i){
     for(int j=0; j < cols; ++j){
-			if(cellArray[i][j]->Get_Curr_State() == 1)
-      cout << " " <<"x"<< " ";
-			else	
-      	cout << " " <<" "<< " ";
+      if(cellArray[i][j]->Get_Curr_State() == 1)
+	cout <<" "<<"x"<<" ";
+      else	
+      	cout <<" "<<" "<<" ";
     }
     cout << endl;
-	}
+  }
 }
 
 void Grid::Next_Print(){
@@ -89,81 +88,79 @@ inline bool Grid::Is_Safe_Coord(int x, int y) {
 
 void Grid::ApplyRules(){
 	
-	switch(ruleSet){
+  switch(ruleSet){
 	
-		case 1 :
-			ApplyGOL();
-			break;
+  case 1 :
+    ApplyGOL();
+    break;
 		
-		default:
-			cout<<"Undefined rule set defined rule sets are:"<<endl;
-			cout<<"1: Game of Life"<<endl;
-			exit(EXIT_FAILURE);
-	}
+  default:
+    cout<<"Undefined rule set defined rule sets are:"<<endl;
+    cout<<"1: Game of Life"<<endl;
+    exit(EXIT_FAILURE);
+  }
 
-	//all current states now need to be equal to next states
-	for(int i=0; i<rows; ++i){
-		for(int j=0; j<cols; ++j){
-			cellArray[i][j]->Set_Curr_State(cellArray[i][j]->Get_Next_State());
-		}
-	}
-	
+  //all current states now need to be equal to next states
+  for(int i=0; i<rows; ++i){
+    for(int j=0; j<cols; ++j){
+      cellArray[i][j]->Set_Curr_State(cellArray[i][j]->Get_Next_State());
+    }
+  }
 }
 
 void Grid::ApplyGOL(){
 	
-	//TODO: Modify this to work with the vector of live cells but for now just get it working 	
+  //TODO: Modify this to work with the vector of live cells but for now just get it working 	
+  
+  for(int i=0; i<rows; ++i){
+    
+    for(int j=0; j<cols; ++j){
+      //count alive neighbors for each cell
+      unsigned int liveNeigh = 0;
+      
+      //bottm left
+      if(Is_Safe_Coord(j-1, i+1))
+	liveNeigh += cellArray[i+1][j-1]->Get_Curr_State();
 	
-	for(int i=0; i<rows; ++i){
-		
-		for(int j=0; j<cols; ++j){
-			//count alive neighbors for each cell
-			unsigned int liveNeigh = 0;
+      //left
+      if(Is_Safe_Coord(j-1, i))
+	liveNeigh += cellArray[i][j-1]->Get_Curr_State();
+      
+      //top left
+      if(Is_Safe_Coord(j-1, i-1))
+	liveNeigh += cellArray[i-1][j-1]->Get_Curr_State();
+
+      //top
+      if(Is_Safe_Coord(j, i-1))
+	liveNeigh += cellArray[i-1][j]->Get_Curr_State();
+      
+      //top right
+      if(Is_Safe_Coord(j+1, i-1))
+	liveNeigh += cellArray[i-1][j+1]->Get_Curr_State();
+      
+      //right neighbor
+      if(Is_Safe_Coord(j+1, i))
+	liveNeigh += cellArray[i][j+1]->Get_Curr_State();
+
+      //bottom right
+      if(Is_Safe_Coord(j+1, i+1))
+	liveNeigh += cellArray[i+1][j+1]->Get_Curr_State();
+
+      //bottom	
+      if(Is_Safe_Coord(j+1, i))
+	liveNeigh += cellArray[i][j+1]->Get_Curr_State();
 			
-			//bottm left
-			if(Is_Safe_Coord(j-1, i+1))
-				liveNeigh += cellArray[i+1][j-1]->Get_Curr_State();
-	
-			//left
-			if(Is_Safe_Coord(j-1, i))
-				liveNeigh += cellArray[i][j-1]->Get_Curr_State();
-
-			//top left
-			if(Is_Safe_Coord(j-1, i-1))
-				liveNeigh += cellArray[i-1][j-1]->Get_Curr_State();
-
-			//top
-			if(Is_Safe_Coord(j, i-1))
-				liveNeigh += cellArray[i-1][j]->Get_Curr_State();
-
-			//top right
-			if(Is_Safe_Coord(j+1, i-1))
-				liveNeigh += cellArray[i-1][j+1]->Get_Curr_State();
-
-			//right neighbor
-			if(Is_Safe_Coord(j+1, i))
-				liveNeigh += cellArray[i][j+1]->Get_Curr_State();
-
-			//bottom right
-			if(Is_Safe_Coord(j+1, i+1))
-				liveNeigh += cellArray[i+1][j+1]->Get_Curr_State();
-
-			//bottom	
-			if(Is_Safe_Coord(j+1, i))
-				liveNeigh += cellArray[i][j+1]->Get_Curr_State();
-
-			//now that we have summed up the amount of alive neighbors we can perform ops
-			
-			//if cell is dead and it has 3 or more live neighbors it becomes live
-			
-			unsigned int state = cellArray[i][j]->Get_Curr_State();
-			if(state == 0 && liveNeigh == 3){
-				cellArray[i][j]->Set_Next_State(1);
-			}
-			else if(state == 1 && (liveNeigh < 2 || liveNeigh > 3)){
-				cellArray[i][j]->Set_Next_State(0);
-			}
-
-		}
+      unsigned int state = cellArray[i][j]->Get_Curr_State();
+      if(state == 0 && liveNeigh == 3){
+	cellArray[i][j]->Set_Next_State(1);
+      }
+      else{ 
+	if(liveNeigh < 2 || liveNeigh > 3){
+	  cellArray[i][j]->Set_Next_State(0);
 	}
+	else
+	  cellArray[i][j]->Set_Next_State(1);
+      }
+    }
+  }
 }

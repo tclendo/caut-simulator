@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <ctime>
+#include <unistd.h>
 
 
 #include "grid.h"
@@ -15,7 +17,7 @@ using namespace std;
 
 
 void usage(int argc, char **argv);
-Grid* read_file(vector <Cell*> &init, char* in_file);
+Grid* read_file(vector <Cell*> &init, char* in_file, int ruleset);
 
 
 int main(int argc, char** argv) {
@@ -25,16 +27,11 @@ int main(int argc, char** argv) {
   // initial 'live' cells, will be initialized in our file reader
   vector <Cell*> initial_state;
   
-  Grid* grid = read_file(initial_state, argv[1]);
+  Grid* grid = read_file(initial_state, argv[1], stoi(argv[2]));
   
   // set the live cell vector in the grid class
   grid->Set_Live_Cells(initial_state);
   
-  // print just to make sure everything works as intended;
-  grid->Print_Live_Cells();
-
-  // verify that we've initialized the grid properly
-
   /*
     TODO:
 
@@ -42,9 +39,19 @@ int main(int argc, char** argv) {
     Everything is initialized up to this point,
     now it's up to the simulation to begin based on the ruleset.
 
-    For now, we are just doing Game of Life.
    */
-  grid->Run_Simulation(stoi(argv[2]));
+
+  for (int i = 0; i < stoi(argv[3]); i++) {
+    // clear the system for printing
+    system("clear");
+    // print the grid
+    grid->Curr_Print();
+    // apply the ruleset to the grid
+    grid->ApplyRules();
+
+    // only here so that we can see the prints going on
+    sleep(1);
+  }
 
   // Delete the new grid from memory
   delete grid;
@@ -55,15 +62,15 @@ int main(int argc, char** argv) {
 
 void usage(int argc, char** argv) {
 
-  if (argc < 3) {
-    cerr << "Usage: ./caut <inputfile>.caut <number_of_generations>" << endl;
+  if ((argc < 4) || (argc > 4)) {
+    cerr << "Usage: ./caut <inputfile>.caut <ruleset> <number_of_generations>" << endl;
     exit(EXIT_FAILURE);
   }
 
   cout << "Setting up Cellular Automata Simulation on file " << argv[1] << endl;
 }
 
-Grid* read_file(vector <Cell*> &init, char* in_file) {
+Grid* read_file(vector <Cell*> &init, char* in_file, int ruleset) {
 
   ifstream file;
   file.open(in_file);
@@ -82,7 +89,7 @@ Grid* read_file(vector <Cell*> &init, char* in_file) {
   cout << "Columns: " << columns << endl;
 
   // initialize our grid of all empty cells
-  Grid* grid = new Grid(rows, columns, 1);
+  Grid* grid = new Grid(rows, columns, ruleset);
 
   // Create a new live cell based on the x y coordinates from each input line
   while (getline(file, line)) {
@@ -104,7 +111,7 @@ Grid* read_file(vector <Cell*> &init, char* in_file) {
     init.push_back(input_cell);
   }
 
-  cout << "Grid initialized with " << init.size() << " live cells." << endl;
+  // cout << "Grid initialized with " << init.size() << " live cells." << endl;
 
   return grid;
 }

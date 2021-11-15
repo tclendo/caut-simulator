@@ -105,6 +105,7 @@ void Grid::ApplyRules(){
   }
 
   //all current states now need to be equal to next states
+  #pragma omp parallel for schedule(static)
   for(int i=0; i<rows; ++i){
     for(int j=0; j<cols; ++j){
       cellArray[i][j]->Set_Curr_State(cellArray[i][j]->Get_Next_State());
@@ -150,7 +151,7 @@ void Grid::Run_Simulation(unsigned int iterations) {
 	  // Increase the nearby cell's neighbor count by 1
 	  // Because 
           #pragma omp atomic
-	  cellArray[x_coord - 1][y_coord - 1]->Add_Neighbor();
+	  cellArray[x_coord - 1][y_coord - 1]->Add_Neighbor(1);
 
 	  potential_cells.push_back(cellArray[x_coord - 1][y_coord - 1]);
 	}
@@ -163,7 +164,7 @@ void Grid::Run_Simulation(unsigned int iterations) {
 	*/ 
 	if (Is_Safe_Coord(x_coord, y_coord - 1)) {
           #pragma omp atomic
-	  cellArray[x_coord][y_coord - 1]->Add_Neighbor();
+	  cellArray[x_coord][y_coord - 1]->Add_Neighbor(1);
 
 	  potential_cells.push_back(cellArray[x_coord][y_coord - 1]);
 	}
@@ -176,7 +177,7 @@ void Grid::Run_Simulation(unsigned int iterations) {
 	*/ 
 	if (Is_Safe_Coord(x_coord + 1, y_coord - 1)) {
           #pragma omp atomic
-	  cellArray[x_coord + 1][y_coord - 1]->Add_Neighbor();
+	  cellArray[x_coord + 1][y_coord - 1]->Add_Neighbor(1);
 
 	  potential_cells.push_back(cellArray[x_coord + 1][y_coord - 1]);
 	}
@@ -189,7 +190,7 @@ void Grid::Run_Simulation(unsigned int iterations) {
 	*/ 
 	if (Is_Safe_Coord(x_coord - 1, y_coord)) {
           #pragma omp atomic
-	  cellArray[x_coord - 1][y_coord]->Add_Neighbor();
+	  cellArray[x_coord - 1][y_coord]->Add_Neighbor(1);
 
 	  potential_cells.push_back(cellArray[x_coord - 1][y_coord]);
 	}
@@ -202,7 +203,7 @@ void Grid::Run_Simulation(unsigned int iterations) {
 	*/ 
 	if (Is_Safe_Coord(x_coord + 1, y_coord)) {
           #pragma omp atomic
-	  cellArray[x_coord + 1][y_coord]->Add_Neighbor();
+	  cellArray[x_coord + 1][y_coord]->Add_Neighbor(1);
 
 	  potential_cells.push_back(cellArray[x_coord + 1][y_coord]);
 	}
@@ -215,7 +216,7 @@ void Grid::Run_Simulation(unsigned int iterations) {
 	*/ 
 	if (Is_Safe_Coord(x_coord - 1, y_coord + 1)) {
 	  #pragma omp atomic
-	  cellArray[x_coord - 1][y_coord + 1]->Add_Neighbor();
+	  cellArray[x_coord - 1][y_coord + 1]->Add_Neighbor(1);
 	  
 	  potential_cells.push_back(cellArray[x_coord - 1][y_coord + 1]);
 	}
@@ -228,7 +229,7 @@ void Grid::Run_Simulation(unsigned int iterations) {
 	*/ 
 	if (Is_Safe_Coord(x_coord, y_coord + 1)) {
           #pragma omp atomic
-	  cellArray[x_coord][y_coord + 1]->Add_Neighbor();
+	  cellArray[x_coord][y_coord + 1]->Add_Neighbor(1);
 
 	  potential_cells.push_back(cellArray[x_coord][y_coord + 1]);
 	}
@@ -241,7 +242,7 @@ void Grid::Run_Simulation(unsigned int iterations) {
 	*/ 
 	if (Is_Safe_Coord(x_coord + 1, y_coord + 1)) {
           #pragma omp atomic
-	  cellArray[x_coord + 1][y_coord + 1]->Add_Neighbor();
+	  cellArray[x_coord + 1][y_coord + 1]->Add_Neighbor(1);
 
 	  potential_cells.push_back(cellArray[x_coord + 1][y_coord + 1]);
 	}
@@ -258,7 +259,7 @@ void Grid::Run_Simulation(unsigned int iterations) {
       }
 
       // reset neighbor count for next generation
-      live_cells[i]->Remove_Neighbor();
+      live_cells[i]->Clear_Neighbors();
     }
 
     if (live_cells.size() == 0) {
@@ -277,7 +278,7 @@ void Grid::Run_Simulation(unsigned int iterations) {
       }
 
       // reset neighbor count for next generation
-      potential_cells[i]->Remove_Neighbor();
+      potential_cells[i]->Clear_Neighbors();
     }
   }
 }
@@ -287,11 +288,17 @@ inline void Grid::Update_State(Cell* cell) {
   if ((cell->Get_Curr_State() == 0)) { 
     if (cell->Get_Neighbors() == 3)
       cell->Set_Next_State(1);
+    else
+      cell->Set_Next_State(0);
   }
   
   else {
-    if ((cell->Get_Neighbors() < 2) || (cell->Get_Neighbors() > 3))
+    if ((cell->Get_Neighbors() < 2) || (cell->Get_Neighbors() > 3)) {
       cell->Set_Next_State(0);
+
+    } else
+      cell->Set_Next_State(1);
+      
   }
 }
 
@@ -299,55 +306,50 @@ void Grid::ApplyGOL(){
 	
   //TODO: Modify this to work with the vector of live cells but for now just get it working 	
 	
+  #pragma omp parallel for schedule(static)
   for(int i=0; i<rows; ++i){
 		
     for(int j=0; j<cols; ++j){
       //count alive neighbors for each cell
-      unsigned int liveNeigh = 0;
+      Cell* current = cellArray[i][j];
       
       //bottm left
       if(Is_Safe_Coord(j-1, i+1))
-	liveNeigh += cellArray[i+1][j-1]->Get_Curr_State();
+	current->Add_Neighbor(cellArray[i+1][j-1]->Get_Curr_State());
       
       //left
       if(Is_Safe_Coord(j-1, i))
-	liveNeigh += cellArray[i][j-1]->Get_Curr_State();
+	current->Add_Neighbor(cellArray[i][j-1]->Get_Curr_State());
       
       //top left
       if(Is_Safe_Coord(j-1, i-1))
-	liveNeigh += cellArray[i-1][j-1]->Get_Curr_State();
+	current->Add_Neighbor(cellArray[i-1][j-1]->Get_Curr_State());
       
       //top
       if(Is_Safe_Coord(j, i-1))
-	liveNeigh += cellArray[i-1][j]->Get_Curr_State();
+	current->Add_Neighbor(cellArray[i-1][j]->Get_Curr_State());
       
       //top right
       if(Is_Safe_Coord(j+1, i-1))
-	liveNeigh += cellArray[i-1][j+1]->Get_Curr_State();
+	current->Add_Neighbor(cellArray[i-1][j+1]->Get_Curr_State());
 
       //right neighbor
       if(Is_Safe_Coord(j+1, i))
-	liveNeigh += cellArray[i][j+1]->Get_Curr_State();
+	current->Add_Neighbor(cellArray[i][j+1]->Get_Curr_State());
       
       //bottom right
       if(Is_Safe_Coord(j+1, i+1))
-	liveNeigh += cellArray[i+1][j+1]->Get_Curr_State();
+	current->Add_Neighbor(cellArray[i+1][j+1]->Get_Curr_State());
       
       //bottom	
       if(Is_Safe_Coord(j+1, i))
-	liveNeigh += cellArray[i][j+1]->Get_Curr_State();
+	current->Add_Neighbor(cellArray[i][j+1]->Get_Curr_State());
       
       //now that we have summed up the amount of alive neighbors we can perform ops
-			
-      //if cell is dead and it has 3 or more live neighbors it becomes live
-			
-      unsigned int state = cellArray[i][j]->Get_Curr_State();
-      if(state == 0 && liveNeigh == 3){
-	cellArray[i][j]->Set_Next_State(1);
-      }
-      else if(state == 1 && (liveNeigh < 2 || liveNeigh > 3)){
-	cellArray[i][j]->Set_Next_State(0);
-      }
+      Update_State(cellArray[i][j]);
+
+      // we don't need neighbor information anymore for this cell
+      current->Clear_Neighbors();
     }
   }
 }

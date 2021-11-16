@@ -27,6 +27,10 @@ While our team is not as far as we would have liked to have been by this point w
 
 \section{Graphics Rendering}
 %Raul
+\par 
+As far as the graphics rendering for this project goes, we currently are saving the state of the grid to a ".out" file for access by a separate file that will use OpenGL to create a window with a nicer visualization of the data. This will be done by translating the hyphens (representing dead cells) and zeroes (representing living cells) to the more traditional representations of the cells in simulations. This method will read from the file and update the display until the window is closed or it receives a signal from main that the simulation has ended. 
+\par
+The output file is currently updating correctly to the current state of the simulation and the graphical OpenGL implementation is underway and will be added as soon as it is working correctly.
 
 \begin{document}
 \maketitle

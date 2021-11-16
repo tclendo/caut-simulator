@@ -46,6 +46,7 @@ int main(int argc, char** argv) {
     system("clear");
     // print the grid
     grid->Curr_Print();
+	system("cat curr_grid.out");
     // apply the ruleset to the grid
     grid->ApplyRules();
 

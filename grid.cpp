@@ -1,7 +1,9 @@
+#include <fstream>
 #include <iostream>
 #include <omp.h>
 
 #include "grid.h"
+
 
 using namespace std;
 
@@ -51,7 +53,7 @@ void Grid::Curr_Print() {
     }
     cout << endl;
   }*/
-
+  /*
   for(int i=0; i < rows; ++i){
     for(int j=0; j < cols; ++j){
       if(cellArray[i][j]->Get_Curr_State() == 1)
@@ -61,6 +63,21 @@ void Grid::Curr_Print() {
     }
     cout << endl;
   }
+  */
+  fstream grid_file;
+  grid_file.open("curr_grid.out", ios::out | ios::trunc);
+  #pragma omp parallel for schedule(static)
+  for(int i=0; i < rows; ++i){
+	#pragma omp parallel for schedule(static)
+    for(int j=0; j < cols; ++j){
+      if(cellArray[i][j]->Get_Curr_State() == 1)
+	grid_file << " " <<"0"<< " ";
+      else	
+      	grid_file << " " <<"-"<< " ";
+    }
+    grid_file << endl;
+  }
+  grid_file.close();
 }
 
 void Grid::Next_Print(){

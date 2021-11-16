@@ -27,13 +27,13 @@ int main(int argc, char* argv[]){
 	
 	unsigned int rand_amt = atoi(argv[3]);
 	
-	// for(int i=0; i<rows; ++i){
-	// 	for(int j=0; j<cols; ++j){
-	// 		grid.cellArray[i][j]->Set_Curr_State(rand() % 2);
-	// 	}
-	// }
+//	 for(int i=0; i<rows; ++i){
+//	 	for(int j=0; j<cols; ++j){
+//	 		grid.cellArray[i][j]->Set_Curr_State(rand() % 2);
+//	 	}
+//	 }
 	grid.cellArray[2][2]->Set_Curr_State(1);
-	grid.cellArray[2][2]->Set_Curr_State(1);
+	grid.cellArray[2][4]->Set_Curr_State(1);
 	//randomly initialize data 
 	/*for(int i=0; i<rand_amt; ++i){
 		//get a random row index
@@ -53,11 +53,9 @@ int main(int argc, char* argv[]){
 	char key;
 	grid.Curr_Print();
 	while(true){
-		
 	  std::system("clear");
 	  grid.Curr_Print();
 	  grid.ApplyRules();
-	  //cin>>key;
 	  sleep(1);
 	}
 	return 0;

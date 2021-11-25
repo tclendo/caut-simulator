@@ -71,7 +71,7 @@ void Grid::Curr_Print() {
 	#pragma omp parallel for schedule(static)
     for(int j=0; j < cols; ++j){
       if(cellArray[i][j]->Get_Curr_State() == 1)
-	grid_file << " " <<"0"<< " ";
+				grid_file << " " <<"0"<< " ";
       else	
       	grid_file << " " <<"-"<< " ";
     }
@@ -102,10 +102,6 @@ void Grid::Print_Live_Cells() {
   }
 }
 
-//these needs to be ints not unsigned because signed values will be passed here
-inline bool Grid::Is_Safe_Coord(int x, int y) {
-	return (((x < cols) && (y < rows)) && ((x >= 0) && (y >= 0)));
-}
 
 void Grid::ApplyRules(){
 	
@@ -290,8 +286,8 @@ void Grid::Run_Simulation(unsigned int iterations) {
     for (int i = 0; i < potential_cells.size(); i++) {
       Update_State(potential_cells[i]);
       if (potential_cells[i]->Get_Next_State() == 1) {
-	live_cells.push_back(potential_cells[i]);
-	potential_cells[i]->Set_Curr_State(1);
+				live_cells.push_back(potential_cells[i]);
+				potential_cells[i]->Set_Curr_State(1);
       }
 
       // reset neighbor count for next generation
@@ -319,6 +315,11 @@ inline void Grid::Update_State(Cell* cell) {
   }
 }
 
+//these needs to be ints not unsigned because signed values will be passed here
+inline bool Grid::Is_Safe_Coord(int x, int y) {
+	return (((x < cols) && (y < rows)) && ((x >= 0) && (y >= 0)));
+}
+
 void Grid::ApplyGOL(){
 	
   //TODO: Modify this to work with the vector of live cells but for now just get it working 	
@@ -332,35 +333,35 @@ void Grid::ApplyGOL(){
       
       //bottm left
       if(Is_Safe_Coord(j-1, i+1))
-	current->Add_Neighbor(cellArray[i+1][j-1]->Get_Curr_State());
+				current->Add_Neighbor(cellArray[i+1][j-1]->Get_Curr_State());
       
       //left
       if(Is_Safe_Coord(j-1, i))
-	current->Add_Neighbor(cellArray[i][j-1]->Get_Curr_State());
+				current->Add_Neighbor(cellArray[i][j-1]->Get_Curr_State());
       
       //top left
       if(Is_Safe_Coord(j-1, i-1))
-	current->Add_Neighbor(cellArray[i-1][j-1]->Get_Curr_State());
+				current->Add_Neighbor(cellArray[i-1][j-1]->Get_Curr_State());
       
       //top
       if(Is_Safe_Coord(j, i-1))
-	current->Add_Neighbor(cellArray[i-1][j]->Get_Curr_State());
+				current->Add_Neighbor(cellArray[i-1][j]->Get_Curr_State());
       
       //top right
       if(Is_Safe_Coord(j+1, i-1))
-	current->Add_Neighbor(cellArray[i-1][j+1]->Get_Curr_State());
+				current->Add_Neighbor(cellArray[i-1][j+1]->Get_Curr_State());
 
       //right neighbor
       if(Is_Safe_Coord(j+1, i))
-	current->Add_Neighbor(cellArray[i][j+1]->Get_Curr_State());
+				current->Add_Neighbor(cellArray[i][j+1]->Get_Curr_State());
       
       //bottom right
       if(Is_Safe_Coord(j+1, i+1))
-	current->Add_Neighbor(cellArray[i+1][j+1]->Get_Curr_State());
+				current->Add_Neighbor(cellArray[i+1][j+1]->Get_Curr_State());
       
       //bottom	
-      if(Is_Safe_Coord(j+1, i))
-	current->Add_Neighbor(cellArray[i][j+1]->Get_Curr_State());
+      if(Is_Safe_Coord(j, i+1))
+				current->Add_Neighbor(cellArray[i+1][j]->Get_Curr_State());
       
       //now that we have summed up the amount of alive neighbors we can perform ops
       Update_State(cellArray[i][j]);

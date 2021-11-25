@@ -46,7 +46,10 @@ int main(int argc, char** argv) {
     system("clear");
     // print the grid
     grid->Curr_Print();
-	system("cat curr_grid.out");
+
+		//what is this?
+		system("cat curr_grid.out");
+
     // apply the ruleset to the grid
     grid->ApplyRules();
 
@@ -91,27 +94,44 @@ Grid* read_file(vector <Cell*> &init, char* in_file, int ruleset) {
 
   // initialize our grid of all empty cells
   Grid* grid = new Grid(rows, columns, ruleset);
-
+	
+	if(strncmp(in_file, "inputs/ra", 9) == 0){
+		
+		srand(time(NULL));
+		for(int i=0; i<rows; ++i){
+			for(int j=0; j<columns; ++j){
+				int liveness = rand() % 2;	
+				if(liveness){
+					Cell* input_cell = grid->Get_Cell(i,j);
+					input_cell->Set_Curr_State(liveness);
+					init.push_back(input_cell);
+				}
+			}
+		}
+	}
   // Create a new live cell based on the x y coordinates from each input line
-  while (getline(file, line)) {
+	else{
+	
+ 	 while (getline(file, line)) {
 
-    istringstream iss(line);
-    unsigned int x;
-    unsigned int y;
+ 	   istringstream iss(line);
+ 	   unsigned int x;
+ 	   unsigned int y;
 
-    if (!(iss >> x >> y)) {break;}
+ 	   if (!(iss >> x >> y)) {break;}
 
-    cout << "x: " << x << " y: " << y << endl;
+ 	   cout << "x: " << x << " y: " << y << endl;
 
-    // given the x and y coordinate of our input line, we want to make this
-    // cell live for our simulation. We call Get_Cell and then Set_Curr_State
-    Cell* input_cell = grid->Get_Cell(x, y);
-    input_cell->Set_Curr_State(1);
+ 	   // given the x and y coordinate of our input line, we want to make this
+ 	   // cell live for our simulation. We call Get_Cell and then Set_Curr_State
+ 	   Cell* input_cell = grid->Get_Cell(x, y);
+ 	   input_cell->Set_Curr_State(1);
 
-    // we also want to add this to our vector of live cells
-    init.push_back(input_cell);
-  }
+ 	   // we also want to add this to our vector of live cells
+ 	   init.push_back(input_cell);
+ 	 }
 
+	}
   // cout << "Grid initialized with " << init.size() << " live cells." << endl;
 
   return grid;

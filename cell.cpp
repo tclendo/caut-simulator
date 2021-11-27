@@ -12,4 +12,5 @@ Cell::Cell(unsigned int x, unsigned int y){
 
   // initialize the amount of live neighbors to 0
   live_neighbors = 0;
+
 }

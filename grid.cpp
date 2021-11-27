@@ -1,6 +1,7 @@
 #include <fstream>
 #include <iostream>
 #include <omp.h>
+#include <time.h>
 
 #include "grid.h"
 
@@ -16,9 +17,7 @@ Grid::Grid(unsigned int rows, unsigned int cols, unsigned int ruleSet){
   //allocate whole block for the grid
   cellArray = new Cell**[rows];
 	
-  //loop through cellArray instantiating cell objects
-  //in theory we could simply use integer values instead of classes
-  //but with classes we allow for more complexity with later implementations
+	srand(time(NULL));
   for(int i=0; i<rows; ++i){
     
     //allocate each row
@@ -26,6 +25,9 @@ Grid::Grid(unsigned int rows, unsigned int cols, unsigned int ruleSet){
     for(int j=0; j<cols; ++j){
       //instantiate objects in the row
       cellArray[i][j] = new Cell(i, j);
+			cellArray[i][j]->Set_HP( (rand() % 100)+1 );
+			//random dry_brush between (0,1]
+			cellArray[i][j]->Set_Dry_Brush( (double)rand() / (double)((unsigned)RAND_MAX) );
     }
   }
 }
@@ -110,7 +112,11 @@ void Grid::ApplyRules(){
   case 1 :
     ApplyGOL();
     break;
-		
+	
+	case 2 :
+		ApplyFire();
+		break;
+
   default:
     cout<<"Undefined rule set defined rule sets are:"<<endl;
     cout<<"1: Game of Life"<<endl;
@@ -296,6 +302,7 @@ void Grid::Run_Simulation(unsigned int iterations) {
   }
 }
 
+//TODO: find everywhere this is used and change its name to GOL specific name to avoid confusion
 inline void Grid::Update_State(Cell* cell) {
 
   if ((cell->Get_Curr_State() == 0)) { 
@@ -315,6 +322,41 @@ inline void Grid::Update_State(Cell* cell) {
   }
 }
 
+void Grid::Find_Live_Neighbors(Cell* cell, int i, int j)
+{
+      //bottm left
+  if(Is_Safe_Coord(j-1, i+1))
+		cell->Add_Neighbor(cellArray[i+1][j-1]->Get_Curr_State());
+  
+  //left
+  if(Is_Safe_Coord(j-1, i))
+		cell->Add_Neighbor(cellArray[i][j-1]->Get_Curr_State());
+  
+  //top left
+  if(Is_Safe_Coord(j-1, i-1))
+		cell->Add_Neighbor(cellArray[i-1][j-1]->Get_Curr_State());
+  
+  //top
+  if(Is_Safe_Coord(j, i-1))
+		cell->Add_Neighbor(cellArray[i-1][j]->Get_Curr_State());
+  
+  //top right
+  if(Is_Safe_Coord(j+1, i-1))
+		cell->Add_Neighbor(cellArray[i-1][j+1]->Get_Curr_State());
+
+  //right neighbor
+  if(Is_Safe_Coord(j+1, i))
+		cell->Add_Neighbor(cellArray[i][j+1]->Get_Curr_State());
+  
+  //bottom right
+  if(Is_Safe_Coord(j+1, i+1))
+		cell->Add_Neighbor(cellArray[i+1][j+1]->Get_Curr_State());
+  
+  //bottom	
+  if(Is_Safe_Coord(j, i+1))
+		cell->Add_Neighbor(cellArray[i+1][j]->Get_Curr_State());
+}
+
 //these needs to be ints not unsigned because signed values will be passed here
 inline bool Grid::Is_Safe_Coord(int x, int y) {
 	return (((x < cols) && (y < rows)) && ((x >= 0) && (y >= 0)));
@@ -330,39 +372,9 @@ void Grid::ApplyGOL(){
     for(int j=0; j<cols; ++j){
       //count alive neighbors for each cell
       Cell* current = cellArray[i][j];
-      
-      //bottm left
-      if(Is_Safe_Coord(j-1, i+1))
-				current->Add_Neighbor(cellArray[i+1][j-1]->Get_Curr_State());
-      
-      //left
-      if(Is_Safe_Coord(j-1, i))
-				current->Add_Neighbor(cellArray[i][j-1]->Get_Curr_State());
-      
-      //top left
-      if(Is_Safe_Coord(j-1, i-1))
-				current->Add_Neighbor(cellArray[i-1][j-1]->Get_Curr_State());
-      
-      //top
-      if(Is_Safe_Coord(j, i-1))
-				current->Add_Neighbor(cellArray[i-1][j]->Get_Curr_State());
-      
-      //top right
-      if(Is_Safe_Coord(j+1, i-1))
-				current->Add_Neighbor(cellArray[i-1][j+1]->Get_Curr_State());
+			
+			Find_Live_Neighbors(current, i, j);
 
-      //right neighbor
-      if(Is_Safe_Coord(j+1, i))
-				current->Add_Neighbor(cellArray[i][j+1]->Get_Curr_State());
-      
-      //bottom right
-      if(Is_Safe_Coord(j+1, i+1))
-				current->Add_Neighbor(cellArray[i+1][j+1]->Get_Curr_State());
-      
-      //bottom	
-      if(Is_Safe_Coord(j, i+1))
-				current->Add_Neighbor(cellArray[i+1][j]->Get_Curr_State());
-      
       //now that we have summed up the amount of alive neighbors we can perform ops
       Update_State(cellArray[i][j]);
 
@@ -370,4 +382,39 @@ void Grid::ApplyGOL(){
       current->Clear_Neighbors();
     }
   }
+}
+
+inline void Grid::Fire_Update_State(Cell* cell)
+{
+	//if cell is on fire and still has hp then decrement hp
+	if(cell->Get_HP() > 0 && cell->Get_Curr_State())
+	{
+		cell->Set_HP(cell->Get_HP() - 1.5);
+
+		//if cell is on fire but has < 0 hp then it is dead and cant come back to life
+		if(cell->Get_HP() <= 0)
+			cell->Set_Next_State(0);
+	}
+
+	//if cell still has hp is not on fire and has 2 or more neighbors on fire
+	else if(cell->Get_HP() > 0 && !cell->Get_Curr_State() && cell->Get_Neighbors() >= 2){
+		//generate a random number (0, 1) 
+		double random = (double)rand()/(unsigned int)((unsigned int)RAND_MAX+1);
+		cell->Set_Next_State(random < cell->Get_Dry_Brush());
+	}
+}
+
+void Grid::ApplyFire()
+{
+		
+  #pragma omp parallel for schedule(static)
+  for(int i=0; i<rows; ++i){
+		
+    for(int j=0; j<cols; ++j){
+			Cell* current = cellArray[i][j];
+			Find_Live_Neighbors(current, i, j);
+			Fire_Update_State(current);
+      current->Clear_Neighbors();
+		}
+	}
 }

@@ -19,6 +19,7 @@ public:
   void Get_Num_Cells();
   void Get_Live_Cells();
   void ApplyRules();
+	void Find_Live_Neighbors(Cell* cell, int i, int j);
 
   // get the cell pointer from a given coordinate
   //Cell* Get_Cell(unsigned int x, unsigned int y) { return cellArray[x][y]; }
@@ -44,9 +45,11 @@ private:
 
   inline bool Is_Safe_Coord(int x, int y);
   inline void Update_State(Cell* cell);
+	inline void Fire_Update_State(Cell* cell);
 
   void Prepare_Next(std::vector<Cell*> potential);
 
   void ApplyGOL();
+	void ApplyFire();
 
 };

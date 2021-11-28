@@ -8,9 +8,12 @@
 #include <sstream>
 #include <ctime>
 #include <unistd.h>
+#include <GL/glew.h>    // include GLEW and new version of GL on Windows
+#include <GLFW/glfw3.h> // GLFW helper library
 
 
 #include "grid.h"
+#include "vis.h"
 
 
 using namespace std;
@@ -40,23 +43,74 @@ int main(int argc, char** argv) {
     now it's up to the simulation to begin based on the ruleset.
 
    */
+/* 
+	 initial set up code for OpenGL from 
+	 https://antongerdelan.net/opengl/hellotriangle.html
+  */
+// start GL context and O/S window using the GLFW helper library
+  if (!glfwInit()) {
+    fprintf(stderr, "ERROR: could not start GLFW3\n");
+    return 1;
+  } 
 
-  for (int i = 0; i < stoi(argv[3]); i++) {
-    // clear the system for printing
-    system("clear");
-    // print the grid
-    grid->Curr_Print();
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-		//what is this?
+  GLFWwindow* window = glfwCreateWindow(700, 700, "Cellular Automata", NULL, NULL);
+  if (!window) {
+    fprintf(stderr, "ERROR: could not open window with GLFW3\n");
+    glfwTerminate();
+    return 1;
+  }
+  glfwMakeContextCurrent(window);
+                                  
+  // start GLEW extension handler
+  glewExperimental = GL_TRUE;
+  glewInit();
+
+  // get version info
+  const GLubyte* renderer = glGetString(GL_RENDERER); // get renderer string
+  const GLubyte* version = glGetString(GL_VERSION); // version as a string
+  printf("Renderer: %s\n", renderer);
+  printf("OpenGL version supported %s\n", version);
+
+  // tell GL to only draw onto a pixel if the shape is closer to the viewer
+  glEnable(GL_DEPTH_TEST); // enable depth-testing
+  glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
+
+  /* OTHER STUFF GOES HERE NEXT */
+  while (!glfwWindowShouldClose(window)) {
+
+    for (int i = 0; i < stoi(argv[3]); i++) {
+	  // wipe the drawing surface clear
+      glClearColor(0,0,0,0);
+	  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+      // clear the system for printing
+      system("clear");
+      // writes current grid state to an external file
+      grid->Curr_Print();
+
+		// prints current grid in the same way it did with the previous functionality
 		system("cat curr_grid.out");
 
-    // apply the ruleset to the grid
-    grid->ApplyRules();
+      // apply the ruleset to the grid
+      grid->ApplyRules();
 
-    // only here so that we can see the prints going on
-    sleep(1);
+      // only here so that we can see the prints going on
+      sleep(1);
+      // update other events like input handling
+      glfwPollEvents();
+      // put the stuff we've been drawing onto the display
+      glfwSwapBuffers(window);
+    }
+	// let people look for a bit before closing the window
+	sleep(3);
+	break;
   }
-
+  // close GL context and any other GLFW resources
+  glfwTerminate();
   // Delete the new grid from memory
   delete grid;
 

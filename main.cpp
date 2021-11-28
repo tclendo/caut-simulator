@@ -43,6 +43,7 @@ int main(int argc, char** argv) {
     now it's up to the simulation to begin based on the ruleset.
 
    */
+<<<<<<< HEAD
 /* 
 	 initial set up code for OpenGL from 
 	 https://antongerdelan.net/opengl/hellotriangle.html
@@ -93,6 +94,17 @@ int main(int argc, char** argv) {
       grid->Curr_Print();
 
 		// prints current grid in the same way it did with the previous functionality
+=======
+	
+	int cycles = stoi(argv[3]);
+  for (int i = 0; i < cycles; i++) {
+    // clear the system for printing
+    system("clear");
+    // print the grid
+    grid->Curr_Print();
+
+		//what is this?
+>>>>>>> 1c17889e18d73bf9778fe29627c2be98d7c00791
 		system("cat curr_grid.out");
 
       // apply the ruleset to the grid
@@ -120,7 +132,7 @@ int main(int argc, char** argv) {
 
 void usage(int argc, char** argv) {
 
-  if ((argc < 4) || (argc > 4)) {
+  if (argc != 4) {
     cerr << "Usage: ./caut <inputfile>.caut <ruleset> <number_of_generations>" << endl;
     exit(EXIT_FAILURE);
   }

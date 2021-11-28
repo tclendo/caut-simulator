@@ -37,3 +37,9 @@ Using Fire Simulation (2):
 	hp this is a random number in the range [1, 100] upon initialization. This number 
 	is used to determine how long a cell will burn for once it has caught on fire. Once 
 	this number reaches <= 0 the cell should not catch on fire again.
+
+	Changing initial HP range for a cell is done by altering the #define HP at the top
+	of the grid.cpp file
+
+	Changing the HP loss rate for a cell is done by altering the #define HP_LOSS at the top
+	of the grid.cpp file

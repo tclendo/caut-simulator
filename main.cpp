@@ -40,8 +40,9 @@ int main(int argc, char** argv) {
     now it's up to the simulation to begin based on the ruleset.
 
    */
-
-  for (int i = 0; i < stoi(argv[3]); i++) {
+	
+	int cycles = stoi(argv[3]);
+  for (int i = 0; i < cycles; i++) {
     // clear the system for printing
     system("clear");
     // print the grid
@@ -66,7 +67,7 @@ int main(int argc, char** argv) {
 
 void usage(int argc, char** argv) {
 
-  if ((argc < 4) || (argc > 4)) {
+  if (argc != 4) {
     cerr << "Usage: ./caut <inputfile>.caut <ruleset> <number_of_generations>" << endl;
     exit(EXIT_FAILURE);
   }

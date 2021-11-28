@@ -5,6 +5,8 @@
 
 #include "grid.h"
 
+#define HP 50
+#define HP_LOSS 3
 
 using namespace std;
 
@@ -25,7 +27,7 @@ Grid::Grid(unsigned int rows, unsigned int cols, unsigned int ruleSet){
     for(int j=0; j<cols; ++j){
       //instantiate objects in the row
       cellArray[i][j] = new Cell(i, j);
-			cellArray[i][j]->Set_HP( (rand() % 100)+1 );
+			cellArray[i][j]->Set_HP( (rand() % HP)+1 );
 			//random dry_brush between (0,1]
 			cellArray[i][j]->Set_Dry_Brush( (double)rand() / (double)((unsigned)RAND_MAX) );
     }
@@ -389,7 +391,7 @@ inline void Grid::Fire_Update_State(Cell* cell)
 	//if cell is on fire and still has hp then decrement hp
 	if(cell->Get_HP() > 0 && cell->Get_Curr_State())
 	{
-		cell->Set_HP(cell->Get_HP() - 1.5);
+		cell->Set_HP(cell->Get_HP() - HP_LOSS);
 
 		//if cell is on fire but has < 0 hp then it is dead and cant come back to life
 		if(cell->Get_HP() <= 0)

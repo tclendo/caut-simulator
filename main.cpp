@@ -43,12 +43,11 @@ int main(int argc, char** argv) {
     now it's up to the simulation to begin based on the ruleset.
 
    */
-<<<<<<< HEAD
-/* 
+   /* 
 	 initial set up code for OpenGL from 
 	 https://antongerdelan.net/opengl/hellotriangle.html
-  */
-// start GL context and O/S window using the GLFW helper library
+   */
+  // start GL context and O/S window using the GLFW helper library
   if (!glfwInit()) {
     fprintf(stderr, "ERROR: could not start GLFW3\n");
     return 1;
@@ -83,9 +82,10 @@ int main(int argc, char** argv) {
 
   /* OTHER STUFF GOES HERE NEXT */
   while (!glfwWindowShouldClose(window)) {
-
-    for (int i = 0; i < stoi(argv[3]); i++) {
-	  // wipe the drawing surface clear
+	
+	int cycles = stoi(argv[3]);
+    for (int i = 0; i < cycles; i++) {
+    // wipe the drawing surface clear
       glClearColor(0,0,0,0);
 	  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       // clear the system for printing
@@ -94,17 +94,6 @@ int main(int argc, char** argv) {
       grid->Curr_Print();
 
 		// prints current grid in the same way it did with the previous functionality
-=======
-	
-	int cycles = stoi(argv[3]);
-  for (int i = 0; i < cycles; i++) {
-    // clear the system for printing
-    system("clear");
-    // print the grid
-    grid->Curr_Print();
-
-		//what is this?
->>>>>>> 1c17889e18d73bf9778fe29627c2be98d7c00791
 		system("cat curr_grid.out");
 
       // apply the ruleset to the grid

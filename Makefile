@@ -14,4 +14,4 @@ $(target) : $(objects)
 	$(compiler) -c $(flags) $< -o $@ $^
 
 clean:
-	rm $(target) $(objects)
+	rm $(target) $(objects) curr_grid.out

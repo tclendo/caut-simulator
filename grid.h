@@ -18,6 +18,9 @@ public:
   void Next_Print();
   void Get_Num_Cells();
   void Get_Live_Cells();
+  unsigned int Get_Rows();
+  unsigned int Get_Cols();
+  unsigned int Get_Ruleset();
   void ApplyRules();
 	void Find_Live_Neighbors(Cell* cell, int i, int j);
 

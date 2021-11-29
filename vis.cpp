@@ -1,18 +1,21 @@
 #include <fstream>
-#include <stdio.h>
+#include <iostream>
 #include <cstdlib>
 #include <GL/glew.h>    // include GLEW and new version of GL on Windows
 #include <GLFW/glfw3.h> // GLFW helper library
-int display_simulation(int ruleset) {
+
+using namespace std;
+
+int display_simulation(int rows, int cols, int ruleset, fstream& grid_file) {
 
   /* 
-	 initial set up code for OpenGL from 
+	 initial set up code for OpenGL window from 
 	 https://antongerdelan.net/opengl/hellotriangle.html
   */
 // start GL context and O/S window using the GLFW helper library
-  if (ruleset == 2) fprintf(stdout, "Fire simulation received by vis\n");
+  if (ruleset == 2) cout << "Fire simulation received by vis" << endl;
   if (!glfwInit()) {
-    fprintf(stderr, "ERROR: could not start GLFW3\n");
+    cerr << "ERROR: could not start GLFW3" << endl;
     return 1;
   } 
 
@@ -23,7 +26,7 @@ int display_simulation(int ruleset) {
 
   GLFWwindow* window = glfwCreateWindow(700, 700, "Cellular Automata", NULL, NULL);
   if (!window) {
-    fprintf(stderr, "ERROR: could not open window with GLFW3\n");
+    cerr << "ERROR: could not open window with GLFW3" << endl;
     glfwTerminate();
     return 1;
   }
@@ -36,8 +39,8 @@ int display_simulation(int ruleset) {
   // get version info
   const GLubyte* renderer = glGetString(GL_RENDERER); // get renderer string
   const GLubyte* version = glGetString(GL_VERSION); // version as a string
-  printf("Renderer: %s\n", renderer);
-  printf("OpenGL version supported %s\n", version);
+  cout << "Renderer: " << renderer << endl;
+  cout << "OpenGL version supported " << version << endl;
 
   // tell GL to only draw onto a pixel if the shape is closer to the viewer
   glEnable(GL_DEPTH_TEST); // enable depth-testing
@@ -46,7 +49,7 @@ int display_simulation(int ruleset) {
   /* OTHER STUFF GOES HERE NEXT */
   while (!glfwWindowShouldClose(window)) {
     // wipe the drawing surface clear
-    glClearColor(1,1,1,1);
+    glClearColor(0,0,0,0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
     //glBindVertexArray(vao);

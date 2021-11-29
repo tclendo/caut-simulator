@@ -27,8 +27,7 @@ int main(int argc, char** argv) {
 
   // initial 'live' cells, will be initialized in our file reader
   vector <Cell*> initial_state;
-  int ruleset = stoi(argv[2]); 
-  Grid* grid = read_file(initial_state, argv[1], ruleset);
+  Grid* grid = read_file(initial_state, argv[1], stoi(argv[2]));
   
   // set the live cell vector in the grid class
   grid->Set_Live_Cells(initial_state);
@@ -43,7 +42,7 @@ int main(int argc, char** argv) {
    */
   // open output stream to log grid progress to use in vis
   fstream grid_file;
-  grid_file.open("curr_grid.out", ios::out | ios::trunc);
+  grid_file.open("curr_grid.out", ios::in | ios::out | ios::trunc);
 	
   int cycles = stoi(argv[3]);
   for (int i = 0; i < cycles; i++) { 
@@ -58,7 +57,7 @@ int main(int argc, char** argv) {
     // only here so that we can see the prints going on
     sleep(1);
   }
-  display_simulation(ruleset);
+  display_simulation(grid->Get_Rows(), grid->Get_Cols(), grid->Get_Ruleset(), grid_file);
   // Delete the new grid from memory
   delete grid;
   grid_file.close();

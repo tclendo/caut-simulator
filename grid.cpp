@@ -45,6 +45,18 @@ Grid::~Grid(){
   delete [] cellArray;
 }
 
+unsigned int Grid::Get_Rows() {
+	return this->rows;
+}
+
+unsigned int Grid::Get_Cols() {
+	return this->cols;
+}
+
+unsigned int Grid::Get_Ruleset() {
+	return this->ruleSet;
+}
+
 void Grid::Curr_Print(fstream& grid_file) {
   
   // indexed the way it is so that the origin is in the bottom left
@@ -68,23 +80,48 @@ void Grid::Curr_Print(fstream& grid_file) {
     cout << endl;
   }
   */
-  #pragma omp parallel for schedule(static)
-  for(int i=0; i < rows; ++i){
-	#pragma omp parallel for schedule(static)
-    for(int j=0; j < cols; ++j){
-      if(cellArray[i][j]->Get_Curr_State() == 1) {
-				grid_file << " " <<"0"<< " ";
-	            cout << " " <<"0"<< " ";
-	  }
-      else {	
-      	grid_file << " " <<"-"<< " ";
-	    cout << " " <<"-"<< " ";
-	  }
+  if (ruleSet == 1) {
+    #pragma omp parallel for schedule(static)
+    for(int i=0; i < rows; ++i){
+	  #pragma omp parallel for schedule(static)
+      for(int j=0; j < cols; ++j){
+        if(cellArray[i][j]->Get_Curr_State() == 1) {
+				  grid_file << " " <<"0"<< " ";
+	              cout << " " <<"0"<< " ";
+	    }
+        else {	
+      	  grid_file << " " <<"-"<< " ";
+	      cout << " " <<"-"<< " ";
+	    }
+      }
+      grid_file << endl;
+	  cout << endl;
     }
-    grid_file << endl;
-	cout << endl;
+    grid_file << "\n";
   }
-  grid_file << "\n";
+  if (ruleSet == 2) {
+    #pragma omp parallel for schedule(static)
+    for(int i=0; i < rows; ++i){
+	  #pragma omp parallel for schedule(static)
+      for(int j=0; j < cols; ++j){
+        if(cellArray[i][j]->Get_Curr_State() == 1) {
+				  grid_file << " " <<"0"<< " ";
+	              cout << " " <<"0"<< " ";
+	    }
+        else if (cellArray[i][j]->Get_HP() <= 0) {	
+      	  grid_file << " " <<"X"<< " ";
+	      cout << " " <<"X"<< " ";
+	    }
+		else {
+		  grid_file << " " <<"-"<< " ";
+	      cout << " " <<"-"<< " ";
+		}
+      }
+      grid_file << endl;
+	  cout << endl;
+    }
+    grid_file << "\n";
+  }
 }
 
 void Grid::Next_Print(){

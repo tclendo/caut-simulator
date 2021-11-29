@@ -45,7 +45,7 @@ Grid::~Grid(){
   delete [] cellArray;
 }
 
-void Grid::Curr_Print() {
+void Grid::Curr_Print(fstream& grid_file) {
   
   // indexed the way it is so that the origin is in the bottom left
   // TODO: Remember how this is inefficient due to cache lines
@@ -68,20 +68,23 @@ void Grid::Curr_Print() {
     cout << endl;
   }
   */
-  fstream grid_file;
-  grid_file.open("curr_grid.out", ios::out | ios::trunc);
   #pragma omp parallel for schedule(static)
   for(int i=0; i < rows; ++i){
 	#pragma omp parallel for schedule(static)
     for(int j=0; j < cols; ++j){
-      if(cellArray[i][j]->Get_Curr_State() == 1)
+      if(cellArray[i][j]->Get_Curr_State() == 1) {
 				grid_file << " " <<"0"<< " ";
-      else	
+	            cout << " " <<"0"<< " ";
+	  }
+      else {	
       	grid_file << " " <<"-"<< " ";
+	    cout << " " <<"-"<< " ";
+	  }
     }
     grid_file << endl;
+	cout << endl;
   }
-  grid_file.close();
+  grid_file << "\n";
 }
 
 void Grid::Next_Print(){
@@ -148,7 +151,7 @@ void Grid::Run_Simulation(unsigned int iterations) {
 
   for (int i = 0; i < iterations; i++) {
 
-    Curr_Print();
+    //Curr_Print();
 
     string enter;
     cin >> enter;

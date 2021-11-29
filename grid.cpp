@@ -232,6 +232,7 @@ void Grid::ApplyRules(){
   default:
     cout<<"Undefined rule set defined rule sets are:"<<endl;
     cout<<"1: Game of Life"<<endl;
+	cout<<"2: Forest Fire Spread Simulation"<<endl;
     exit(EXIT_FAILURE);
   }
 
@@ -317,7 +318,6 @@ void Grid::ApplyGOL(){
   uint64_t t1;
   t1 = ReadTSC();
 	
-  //TODO: Modify this to work with the vector of live cells but for now just get it working 	
   #pragma omp parallel for schedule(static)
   for(int i=0; i<rows; ++i){
 		

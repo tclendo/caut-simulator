@@ -1,14 +1,20 @@
+#include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <cstring>
+#include <ostream>
 #include <string>
 #include <vector>
 #include <sstream>
 #include <ctime>
 #include <unistd.h>
 //#define VISUALIZATION
+
+extern "C" {
+  #include "common.h"
+}
 
 #include "grid.h"
 
@@ -49,22 +55,36 @@ int main(int argc, char** argv) {
   grid_file.open("curr_grid.out", ios::in | ios::out | ios::trunc);
   #endif
 	
+  // running time for our simulation
+  double total_timer = 0.0;
+  // value for our clock timer
+  uint64_t t0;
+  // initialize the time stamp counter register for performance tracking
+  InitTSC();
+
+  // cycles is the # of iterations the user input
   int cycles = stoi(argv[3]);
+
   for (int i = 0; i < cycles; i++) { 
-    // clear the system for printing
-    system("clear");
-	#ifdef VISUALIZATION
+    #ifdef VISUALIZATION
     // writes current grid state to an external file
     grid->Curr_Print(&grid_file);
-	#else
-	grid->Curr_Print();
     #endif
-    // apply the ruleset to the grid
-    grid->ApplyRules();
 
-    // only here so that we can see the prints going on
-    sleep(1);
+    // if we have a print parameter, we print out the simulation as it runs
+    if (argc == 5) {
+      // clear the system for printing
+      system("clear");
+      grid->Curr_Print();
+      sleep(1);
+    }
+
+    // apply the ruleset to the grid
+    t0 = ReadTSC();
+    grid->ApplyRules();
+    total_timer += ElapsedTime(ReadTSC() - t0);
   }
+
   #ifdef VISUALIZATION
   display_simulation(grid->Get_Rows(), grid->Get_Cols(), grid->Get_Ruleset(), grid_file);
   grid_file.close();
@@ -72,17 +92,19 @@ int main(int argc, char** argv) {
   // Delete the new grid from memory
   delete grid;
   // Program run successfully.
+  cout << "Total simulation run time: " << total_timer << endl;
+
   return 0;
 }
 
 void usage(int argc, char** argv) {
 
-  if (argc != 4) {
-    cerr << "Usage: ./caut <inputfile>.caut <ruleset> <number_of_generations>" << endl;
+  if ((argc < 4) || (argc > 5)) {
+    cerr << "Usage: ./caut <inputfile>.caut <ruleset> <number_of_generations> ?<p>" << endl;
     exit(EXIT_FAILURE);
   }
 
-  cout << "Setting up Cellular Automata Simulation on file " << argv[1] << endl;
+  // cout << "Setting up Cellular Automata Simulation on file " << argv[1] << endl;
 }
 
 Grid* read_file(vector <Cell*> &init, char* in_file, int ruleset) {
@@ -100,8 +122,8 @@ Grid* read_file(vector <Cell*> &init, char* in_file, int ruleset) {
   // the first 2 words in the file will be the rows and columns of the grid
   // TODO: error checking for bad input
   init_line >> rows >> columns;
-  cout << "Rows: " << rows << endl;
-  cout << "Columns: " << columns << endl;
+  // cout << "Rows: " << rows << endl;
+  // cout << "Columns: " << columns << endl;
 
   // initialize our grid of all empty cells
   Grid* grid = new Grid(rows, columns, ruleset);
@@ -131,7 +153,7 @@ Grid* read_file(vector <Cell*> &init, char* in_file, int ruleset) {
 
  	   if (!(iss >> x >> y)) {break;}
 
- 	   cout << "x: " << x << " y: " << y << endl;
+ 	   // cout << "x: " << x << " y: " << y << endl;
 
  	   // given the x and y coordinate of our input line, we want to make this
  	   // cell live for our simulation. We call Get_Cell and then Set_Curr_State

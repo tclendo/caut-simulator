@@ -4,8 +4,6 @@ objects = $(addsuffix .o, $(basename $(sources)))
 flags = -g
 # uncomment for OpenGL Vis: flags = -g -lglfw -lglew -framework OpenGL
 
-
-
 target = caut
 
 $(target) : $(objects)

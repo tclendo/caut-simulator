@@ -3,7 +3,9 @@ public:
 
   Cell(unsigned int x, unsigned int y);
   ~Cell() = default;
-
+  // used for vis, easier to check what has changed than checking every element every time
+  int Get_Prev_State() const { return prev_state; }
+  void Set_Prev_State(int state) { prev_state = state; }
   int Get_Curr_State() const { return curr_state; }
   void Set_Curr_State(int state) { curr_state = state; }
   int Get_Next_State() const { return next_state; }
@@ -26,6 +28,7 @@ private:
   unsigned int x;
   unsigned int y;
 
+  int prev_state;
   int curr_state;
   int next_state;
 

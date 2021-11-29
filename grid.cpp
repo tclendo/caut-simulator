@@ -4,7 +4,7 @@
 #include <time.h>
 
 #include "grid.h"
-
+//#define VISUALIZATION
 #define HP 50
 #define HP_LOSS 3
 
@@ -57,7 +57,7 @@ unsigned int Grid::Get_Ruleset() {
 	return this->ruleSet;
 }
 
-void Grid::Curr_Print(fstream& grid_file) {
+void Grid::Curr_Print(fstream * grid_file) {
   
   // indexed the way it is so that the origin is in the bottom left
   // TODO: Remember how this is inefficient due to cache lines
@@ -80,47 +80,111 @@ void Grid::Curr_Print(fstream& grid_file) {
     cout << endl;
   }
   */
+  // game of life printing
   if (ruleSet == 1) {
     #pragma omp parallel for schedule(static)
     for(int i=0; i < rows; ++i){
 	  #pragma omp parallel for schedule(static)
       for(int j=0; j < cols; ++j){
-        if(cellArray[i][j]->Get_Curr_State() == 1) {
-				  grid_file << " " <<"0"<< " ";
-	              cout << " " <<"0"<< " ";
+		Cell* curr = cellArray[i][j];
+
+		#ifdef VISUALIZATION
+		// only have to track which cells change state to add to output file
+		bool change = 
+			curr->Get_Curr_State() != curr->Get_Prev_State();
+		int x, y;
+		x = curr->Get_X_Coord();
+		y = curr->Get_Y_Coord();
+		#endif
+
+        if(curr->Get_Curr_State() == 1) {
+
+		  #ifdef VISUALIZATION	
+		  if (change) {
+			// by tracking which cells are changing state,
+			// we only have to change those cells in the vis
+			*grid_file << x << " " 
+				      << y << " " << "0" << endl;
+		  }
+		  #endif
+
+	      cout << " " <<"0"<< " ";
 	    }
-        else {	
-      	  grid_file << " " <<"-"<< " ";
+
+        else {
+
+		  #ifdef VISUALIZATION
+		  if (change) {
+			*grid_file << x << " " 
+				      << y << " " << "-" << endl;
+		  }
+		  #endif
+
 	      cout << " " <<"-"<< " ";
 	    }
       }
-      grid_file << endl;
 	  cout << endl;
     }
-    grid_file << "\n";
+    #ifdef VISUALIZATION
+    *grid_file << "\n";
+    #endif
   }
+  // Fire spread simulation print
   if (ruleSet == 2) {
     #pragma omp parallel for schedule(static)
     for(int i=0; i < rows; ++i){
 	  #pragma omp parallel for schedule(static)
       for(int j=0; j < cols; ++j){
-        if(cellArray[i][j]->Get_Curr_State() == 1) {
-				  grid_file << " " <<"0"<< " ";
-	              cout << " " <<"0"<< " ";
+        Cell* curr = cellArray[i][j];
+
+		#ifdef VISUALIZATION
+		bool change = 
+			curr->Get_Curr_State() != curr->Get_Prev_State();
+	    int x, y;
+		x = curr->Get_X_Coord();
+		y = curr->Get_Y_Coord();
+		#endif
+
+        if(curr->Get_Curr_State() == 1) {
+		  
+		  #ifdef VISUALIZATION
+	      if (change) {
+			*grid_file << x << " " 
+				      << y << " " << "0" << endl;
+		  }
+		  #endif
+
+	      cout << " " <<"0"<< " ";
 	    }
-        else if (cellArray[i][j]->Get_HP() <= 0) {	
-      	  grid_file << " " <<"X"<< " ";
+
+        else if (curr->Get_HP() <= 0) {	
+		  #ifdef VISUALIZATION
+      	  if (change) {
+			*grid_file << x << " " 
+				      << y << " " << "X" << endl;
+		  }
+          #endif
+
 	      cout << " " <<"X"<< " ";
 	    }
+
 		else {
-		  grid_file << " " <<"-"<< " ";
+
+		  #ifdef VISUALIZATION
+		  if (change) {
+			*grid_file << x << " " 
+				      << y << " " << "-" << endl;
+		  }
+		  #endif
+
 	      cout << " " <<"-"<< " ";
 		}
       }
-      grid_file << endl;
 	  cout << endl;
     }
-    grid_file << "\n";
+	#ifdef VISUALIZATION
+    *grid_file << "\n";
+	#endif
   }
 }
 
@@ -169,7 +233,9 @@ void Grid::ApplyRules(){
   #pragma omp parallel for schedule(static)
   for(int i=0; i<rows; ++i){
     for(int j=0; j<cols; ++j){
-      cellArray[i][j]->Set_Curr_State(cellArray[i][j]->Get_Next_State());
+	  cellArray[i][j]->Set_Prev_State(cellArray[i][j]->Get_Curr_State());
+      
+	  cellArray[i][j]->Set_Curr_State(cellArray[i][j]->Get_Next_State());
     }
   }
 }

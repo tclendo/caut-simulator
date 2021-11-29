@@ -1,7 +1,8 @@
 compiler = g++
-sources = $(wildcard *.cpp)
+sources =  $(filter-out vis.cpp, $(wildcard *.cpp)) # use this to include Vis: $(wildcard *.cpp)
 objects = $(addsuffix .o, $(basename $(sources)))
-flags = -g -lglfw -lglew -framework OpenGL
+flags = -g
+# uncomment for OpenGL Vis: flags = -g -lglfw -lglew -framework OpenGL
 
 
 

@@ -14,7 +14,7 @@ public:
   //the array of cells
   Grid(unsigned int rows, unsigned int col, unsigned int ruleSet);
   ~Grid();
-  void Curr_Print(std::fstream& grid_file);
+  void Curr_Print(std::fstream * grid_file = nullptr);
   void Next_Print();
   void Get_Num_Cells();
   void Get_Live_Cells();

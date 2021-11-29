@@ -8,10 +8,13 @@
 #include <sstream>
 #include <ctime>
 #include <unistd.h>
-
+//#define VISUALIZATION
 
 #include "grid.h"
+
+#ifdef VISUALIZATION
 #include "vis.h"
+#endif
 
 
 using namespace std;
@@ -40,27 +43,34 @@ int main(int argc, char** argv) {
     now it's up to the simulation to begin based on the ruleset.
 
    */
+  #ifdef VISUALIZATION
   // open output stream to log grid progress to use in vis
   fstream grid_file;
   grid_file.open("curr_grid.out", ios::in | ios::out | ios::trunc);
+  #endif
 	
   int cycles = stoi(argv[3]);
   for (int i = 0; i < cycles; i++) { 
     // clear the system for printing
     system("clear");
+	#ifdef VISUALIZATION
     // writes current grid state to an external file
-    grid->Curr_Print(grid_file);
-
+    grid->Curr_Print(&grid_file);
+	#else
+	grid->Curr_Print();
+    #endif
     // apply the ruleset to the grid
     grid->ApplyRules();
 
     // only here so that we can see the prints going on
     sleep(1);
   }
+  #ifdef VISUALIZATION
   display_simulation(grid->Get_Rows(), grid->Get_Cols(), grid->Get_Ruleset(), grid_file);
+  grid_file.close();
+  #endif
   // Delete the new grid from memory
   delete grid;
-  grid_file.close();
   // Program run successfully.
   return 0;
 }

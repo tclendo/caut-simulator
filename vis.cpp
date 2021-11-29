@@ -13,7 +13,6 @@ int display_simulation(int rows, int cols, int ruleset, fstream& grid_file) {
 	 https://antongerdelan.net/opengl/hellotriangle.html
   */
 // start GL context and O/S window using the GLFW helper library
-  if (ruleset == 2) cout << "Fire simulation received by vis" << endl;
   if (!glfwInit()) {
     cerr << "ERROR: could not start GLFW3" << endl;
     return 1;
@@ -49,7 +48,7 @@ int display_simulation(int rows, int cols, int ruleset, fstream& grid_file) {
   /* OTHER STUFF GOES HERE NEXT */
   while (!glfwWindowShouldClose(window)) {
     // wipe the drawing surface clear
-    glClearColor(0,0,0,0);
+    glClearColor(0,0,0,1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
     //glBindVertexArray(vao);

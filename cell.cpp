@@ -7,6 +7,7 @@ Cell::Cell(unsigned int x, unsigned int y){
   this->y = y;
   
   //default cell state
+  prev_state = 0;
   curr_state = 0;
   next_state = 0;
 

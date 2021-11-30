@@ -1,5 +1,4 @@
 #!/bin/bash
-
 #SBATCH --job-name=caut
 #SBATCH --output=gol_ra2_%j.out
 #SBATCH --error=gol_ra2_%j.out

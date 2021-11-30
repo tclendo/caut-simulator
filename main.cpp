@@ -167,5 +167,6 @@ Grid* read_file(vector <Cell*> &init, char* in_file, int ruleset) {
 	}
   // cout << "Grid initialized with " << init.size() << " live cells." << endl;
 
+  file.close();
   return grid;
 }

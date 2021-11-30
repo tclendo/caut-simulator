@@ -332,7 +332,7 @@ void Grid::ApplyFire()
   uint64_t t2;
   t2 = ReadTSC();
 	
-  #pragma omp parallel for schedule(static)
+  #pragma omp parallel for
   for(int i=0; i<rows; ++i){
 		
     for(int j=0; j<cols; ++j){

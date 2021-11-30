@@ -12,10 +12,7 @@
 #include <unistd.h>
 //#define VISUALIZATION
 
-extern "C" {
-  #include "common.h"
-}
-
+#include "common.h"
 #include "grid.h"
 
 #ifdef VISUALIZATION

@@ -4,10 +4,7 @@
 #include <omp.h>
 #include <time.h>
 
-extern "C" {
-  #include "common.h"
-}
-
+#include "common.h"
 #include "grid.h"
 
 //#define VISUALIZATION

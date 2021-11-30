@@ -61,36 +61,13 @@ unsigned int Grid::Get_Ruleset() {
 }
 
 void Grid::Curr_Print(fstream * grid_file) {
-  
-  // indexed the way it is so that the origin is in the bottom left
-  // TODO: Remember how this is inefficient due to cache lines
-  // potentially need to figure out the most efficient way to do this.
-  // Maybe not here in print, but when performing simulation actions.
-/*	for(int i=rows; i > 0; --i){
-    for(int j=0; j < cols; ++j){
-      cout << " " << cellArray[j][i - 1]->Get_Curr_State() << " ";
-    }
-    cout << endl;
-  }*/
-  /*
-  for(int i=0; i < rows; ++i){
-    for(int j=0; j < cols; ++j){
-      if(cellArray[i][j]->Get_Curr_State() == 1)
-	cout << " " <<"x"<< " ";
-      else	
-      	cout << " " <<" "<< " ";
-    }
-    cout << endl;
-  }
-  */
+  /*Print the current state of all the cells. Define the VISUALIZATION macro
+	in order to write to the output file so that the data can be used with OpenGL*/
   // game of life printing
   if (ruleSet == 1) {
-    #pragma omp parallel for schedule(static)
     for(int i=0; i < rows; ++i){
-    #pragma omp parallel for schedule(static)
       for(int j=0; j < cols; ++j){
 		Cell* curr = cellArray[i][j];
-
 		#ifdef VISUALIZATION
 		// only have to track which cells change state to add to output file
 		bool change = 
@@ -101,7 +78,6 @@ void Grid::Curr_Print(fstream * grid_file) {
 		#endif
 
         if(curr->Get_Curr_State() == 1) {
-
 		  #ifdef VISUALIZATION	
 		  if (change) {
 			// by tracking which cells are changing state,
@@ -110,21 +86,19 @@ void Grid::Curr_Print(fstream * grid_file) {
 				      << y << " " << "0" << endl;
 		  }
 		  #endif
-
 	      cout << " " <<"0"<< " ";
 	    }
 
         else {
-
 		  #ifdef VISUALIZATION
 		  if (change) {
 			*grid_file << x << " " 
 				      << y << " " << "-" << endl;
 		  }
 		  #endif
-
 	      cout << " " <<"-"<< " ";
 	    }
+
       }
 	  cout << endl;
     }
@@ -132,14 +106,12 @@ void Grid::Curr_Print(fstream * grid_file) {
     *grid_file << "\n";
     #endif
   }
+
   // Fire spread simulation print
   if (ruleSet == 2) {
-    #pragma omp parallel for schedule(static)
     for(int i=0; i < rows; ++i){
-	  #pragma omp parallel for schedule(static)
       for(int j=0; j < cols; ++j){
         Cell* curr = cellArray[i][j];
-
 		#ifdef VISUALIZATION
 		bool change = 
 			curr->Get_Curr_State() != curr->Get_Prev_State();
@@ -149,14 +121,12 @@ void Grid::Curr_Print(fstream * grid_file) {
 		#endif
 
         if(curr->Get_Curr_State() == 1) {
-		  
 		  #ifdef VISUALIZATION
 	      if (change) {
 			*grid_file << x << " " 
 				      << y << " " << "0" << endl;
 		  }
 		  #endif
-
 	      cout << " " <<"0"<< " ";
 	    }
 
@@ -167,21 +137,19 @@ void Grid::Curr_Print(fstream * grid_file) {
 				      << y << " " << "X" << endl;
 		  }
           #endif
-
 	      cout << " " <<"X"<< " ";
 	    }
 
 		else {
-
 		  #ifdef VISUALIZATION
 		  if (change) {
 			*grid_file << x << " " 
 				      << y << " " << "-" << endl;
 		  }
 		  #endif
-
 	      cout << " " <<"-"<< " ";
 		}
+
       }
 	  cout << endl;
     }

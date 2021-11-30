@@ -9,6 +9,7 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=28
 #SBATCH --account=cis431_531
+export OMP_PROC_BIND=true
 
 export OMP_NUM_THREADS=1
 echo "1 Thread"

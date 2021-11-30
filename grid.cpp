@@ -90,7 +90,7 @@ void Grid::Curr_Print(fstream * grid_file) {
   if (ruleSet == 1) {
     #pragma omp parallel for schedule(static)
     for(int i=0; i < rows; ++i){
-	  #pragma omp parallel for schedule(static)
+    #pragma omp parallel for schedule(static)
       for(int j=0; j < cols; ++j){
 		Cell* curr = cellArray[i][j];
 
@@ -241,7 +241,7 @@ void Grid::ApplyRules(){
   t0 = ReadTSC();
 
   //all current states now need to be equal to next states
-  #pragma omp parallel for schedule(static)
+  #pragma omp parallel for
   for(int i=0; i<rows; ++i){
     for(int j=0; j<cols; ++j){
       cellArray[i][j]->Set_Prev_State(cellArray[i][j]->Get_Curr_State());
@@ -250,7 +250,7 @@ void Grid::ApplyRules(){
     }
   }
 
-  // cout << "Time to update grid: " << ElapsedTime(ReadTSC() - t0) << endl;
+  cout << "Time to update grid: " << ElapsedTime(ReadTSC() - t0) << endl;
 }
 
 //TODO: find everywhere this is used and change its name to GOL specific name to avoid confusion
@@ -273,7 +273,7 @@ inline void Grid::GOL_Update_State(Cell* cell) {
   }
 }
 
-void Grid::Find_Live_Neighbors(Cell* cell, int i, int j)
+inline void Grid::Find_Live_Neighbors(Cell* cell, int i, int j)
 {
       //bottm left
   if(Is_Safe_Coord(j-1, i+1))
@@ -318,9 +318,8 @@ void Grid::ApplyGOL(){
   uint64_t t1;
   t1 = ReadTSC();
 	
-  #pragma omp parallel for schedule(static)
+  #pragma omp parallel for
   for(int i=0; i<rows; ++i){
-		
     for(int j=0; j<cols; ++j){
       //count alive neighbors for each cell
       Cell* current = cellArray[i][j];

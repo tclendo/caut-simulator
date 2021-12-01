@@ -209,13 +209,14 @@ void Grid::ApplyRules(){
   t0 = ReadTSC();
 
   //all current states now need to be equal to next states
-  // #pragma omp parallel for
+  #pragma omp parallel for
   for(int i=0; i<rows; ++i){
     for(int j=0; j<cols; ++j){
       cellArray[i][j]->Set_Prev_State(cellArray[i][j]->Get_Curr_State());
       
       cellArray[i][j]->Set_Curr_State(cellArray[i][j]->Get_Next_State());
       if (cellArray[i][j]->Get_Curr_State() == 1) {
+	#pragma omp critical
 	live_cells.push_back(cellArray[i][j]);
       }
 
@@ -283,78 +284,102 @@ inline void Grid::Find_Live_Neighbors(Cell* cell, int i, int j)
     cell->Add_Neighbor(cellArray[i+1][j]->Get_Curr_State());
 }
 
-inline void Grid::Edit_Neighbors(int i, int j) {
-  // bottom left
-  if(Is_Safe_Coord(j-1, i+1)) {
-    Cell *bl = cellArray[i+1][j-1];
-    bl->Add_Neighbor(1);
-    GOL_Update_State(bl);
-  }
-  
-  //left
-  if(Is_Safe_Coord(j-1, i)) {
-    Cell* l = cellArray[i][j-1];
-    l->Add_Neighbor(1);
-    GOL_Update_State(l);
-  }
-  
-  //top left
-  if(Is_Safe_Coord(j-1, i-1)) {
-    Cell* tl = cellArray[i-1][j-1];
-    tl->Add_Neighbor(1);
-    GOL_Update_State(tl);
-  }
-  
-  //top
-  if(Is_Safe_Coord(j, i-1)) {
-    Cell* t = cellArray[i-1][j];
-    t->Add_Neighbor(1);
-    GOL_Update_State(t);
-  }
-  
-  //top right
-  if(Is_Safe_Coord(j+1, i-1)) {
-    Cell* tr = cellArray[i-1][j+1];
-    tr->Add_Neighbor(1);
-    GOL_Update_State(tr);
-  }
-
-  //right 
-  if(Is_Safe_Coord(j+1, i)) {
-    Cell* r = cellArray[i][j+1];
-    r->Add_Neighbor(1);
-    GOL_Update_State(r);
-  }
-  
-  //bottom right
-  if(Is_Safe_Coord(j+1, i+1)) {
-    Cell* br = cellArray[i+1][j+1];
-    br->Add_Neighbor(1);
-    GOL_Update_State(br);
-  }
-  
-  //bottom	
-  if(Is_Safe_Coord(j, i+1)) {
-    Cell* b = cellArray[i+1][j];
-    b->Add_Neighbor(1);
-    GOL_Update_State(b);
-  }
-}
-
 inline bool Grid::Is_Safe_Coord(int x, int y) {
   return (((x < cols) && (y < rows)) && ((x >= 0) && (y >= 0)));
 }
 
 void Grid::ApplyGOL(){
 	
-  
   double update_timer = 0.0;
   uint64_t t1;
   t1 = ReadTSC();
-	
+
+  omp_lock_t writelock;
+  omp_init_lock(&writelock);
+
+  #pragma omp parallel for
   for (Cell* cell : live_cells) {
-    Edit_Neighbors(cell->Get_X_Coord(), cell->Get_Y_Coord());
+    // Edit_Neighbors(cell->Get_X_Coord(), cell->Get_Y_Coord());
+    int i = cell->Get_X_Coord();
+    int j = cell->Get_Y_Coord();
+
+    // bottom left
+    if(Is_Safe_Coord(j-1, i+1)) {
+  	Cell *bl = cellArray[i+1][j-1];
+
+  	// we need to increase the live neighbor count by 1
+  	// and then add it to the potential cells list
+  	omp_set_lock(&writelock);
+  	bl->Add_Neighbor(1);
+  	GOL_Update_State(bl);
+  	omp_unset_lock(&writelock);
+    }
+
+    //left
+    if(Is_Safe_Coord(j-1, i)) {
+  	Cell* l = cellArray[i][j-1];
+  	omp_set_lock(&writelock);
+  	l->Add_Neighbor(1);
+  	GOL_Update_State(l);
+  	omp_unset_lock(&writelock);
+    }
+
+    //top left
+    if(Is_Safe_Coord(j-1, i-1)) {
+  	Cell* tl = cellArray[i-1][j-1];
+  	omp_set_lock(&writelock);
+  	tl->Add_Neighbor(1);
+  	GOL_Update_State(tl);
+  	omp_unset_lock(&writelock);
+    }
+
+    //top
+    if(Is_Safe_Coord(j, i-1)) {
+  	Cell* t = cellArray[i-1][j];
+  	omp_set_lock(&writelock);
+  	t->Add_Neighbor(1);
+  	GOL_Update_State(t);
+  	omp_unset_lock(&writelock);
+    }
+
+    //top right
+    if(Is_Safe_Coord(j+1, i-1)) {
+  	Cell* tr = cellArray[i-1][j+1];
+  	omp_set_lock(&writelock);
+  	tr->Add_Neighbor(1);
+  	GOL_Update_State(tr);
+  	omp_unset_lock(&writelock);
+    }
+
+    //right 
+    if(Is_Safe_Coord(j+1, i)) {
+  	Cell* r = cellArray[i][j+1];
+  	omp_set_lock(&writelock);
+  	r->Add_Neighbor(1);
+  	GOL_Update_State(r);
+  	omp_unset_lock(&writelock);
+    }
+
+    //bottom right
+    if(Is_Safe_Coord(j+1, i+1)) {
+  	Cell* br = cellArray[i+1][j+1];
+  	omp_set_lock(&writelock);
+  	br->Add_Neighbor(1);
+  	GOL_Update_State(br);
+  	omp_unset_lock(&writelock);
+    }
+
+    //bottom	
+    if(Is_Safe_Coord(j, i+1)) {
+  	Cell* b = cellArray[i+1][j];
+  	omp_set_lock(&writelock);
+  	b->Add_Neighbor(1);
+  	GOL_Update_State(b);
+  	omp_unset_lock(&writelock);
+    }
   }
+
+  omp_destroy_lock(&writelock);
 
   // #pragma omp parallel for
   // for(int i=0; i<rows; ++i){

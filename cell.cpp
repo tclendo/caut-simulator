@@ -23,3 +23,22 @@ Cell::Cell(unsigned int x, unsigned int y){
   live_neighbors = 0;
 
 }
+
+void Cell::GOL_Update_State() {
+
+  if ((Get_Curr_State() == 0)) { 
+    if (Get_Neighbors() == 3)
+      Set_Next_State(1);
+    else
+      Set_Next_State(0);
+  }
+  
+  else {
+    if ((Get_Neighbors() < 2) || (Get_Neighbors() > 3)) {
+      Set_Next_State(0);
+
+    } else
+      Set_Next_State(1);
+      
+  }
+}

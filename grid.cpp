@@ -209,6 +209,7 @@ void Grid::ApplyRules(){
       
       cellArray[i][j]->Set_Curr_State(cellArray[i][j]->Get_Next_State());
       if (cellArray[i][j]->Get_Curr_State() == 1) {
+	// adding to the live cell array is a critical operation
 	#pragma omp critical
 	live_cells.push_back(cellArray[i][j]);
       }
@@ -282,7 +283,6 @@ inline bool Grid::Is_Safe_Coord(int x, int y) {
 }
 
 void Grid::ApplyGOL(){
-	
   
   double update_timer = 0.0;
   uint64_t t1;
@@ -292,7 +292,7 @@ void Grid::ApplyGOL(){
   omp_init_lock(&writelock);
 
   #pragma omp parallel for
-  for (int a = 0; a < live_cells.size() ; a++) {
+  for (int a = 0; a < live_cells.size(); a++) {
     Cell* cell = live_cells[a];
 
     // Edit_Neighbors(cell->Get_X_Coord(), cell->Get_Y_Coord());
@@ -307,7 +307,7 @@ void Grid::ApplyGOL(){
   	// and then add it to the potential cells list
   	omp_set_lock(&writelock);
   	bl->Add_Neighbor(1);
-  	GOL_Update_State(bl);
+	bl->GOL_Update_State();
   	omp_unset_lock(&writelock);
     }
 
@@ -316,7 +316,7 @@ void Grid::ApplyGOL(){
   	Cell* l = cellArray[i][j-1];
   	omp_set_lock(&writelock);
   	l->Add_Neighbor(1);
-  	GOL_Update_State(l);
+	l->GOL_Update_State();
   	omp_unset_lock(&writelock);
     }
 
@@ -325,7 +325,7 @@ void Grid::ApplyGOL(){
   	Cell* tl = cellArray[i-1][j-1];
   	omp_set_lock(&writelock);
   	tl->Add_Neighbor(1);
-  	GOL_Update_State(tl);
+	tl->GOL_Update_State();
   	omp_unset_lock(&writelock);
     }
 
@@ -334,7 +334,7 @@ void Grid::ApplyGOL(){
   	Cell* t = cellArray[i-1][j];
   	omp_set_lock(&writelock);
   	t->Add_Neighbor(1);
-  	GOL_Update_State(t);
+	t->GOL_Update_State();
   	omp_unset_lock(&writelock);
     }
 
@@ -343,7 +343,7 @@ void Grid::ApplyGOL(){
   	Cell* tr = cellArray[i-1][j+1];
   	omp_set_lock(&writelock);
   	tr->Add_Neighbor(1);
-  	GOL_Update_State(tr);
+	tr->GOL_Update_State();
   	omp_unset_lock(&writelock);
     }
 
@@ -352,7 +352,7 @@ void Grid::ApplyGOL(){
   	Cell* r = cellArray[i][j+1];
   	omp_set_lock(&writelock);
   	r->Add_Neighbor(1);
-  	GOL_Update_State(r);
+	r->GOL_Update_State();
   	omp_unset_lock(&writelock);
     }
 
@@ -361,7 +361,7 @@ void Grid::ApplyGOL(){
   	Cell* br = cellArray[i+1][j+1];
   	omp_set_lock(&writelock);
   	br->Add_Neighbor(1);
-  	GOL_Update_State(br);
+	br->GOL_Update_State();
   	omp_unset_lock(&writelock);
     }
 
@@ -370,7 +370,7 @@ void Grid::ApplyGOL(){
   	Cell* b = cellArray[i+1][j];
   	omp_set_lock(&writelock);
   	b->Add_Neighbor(1);
-  	GOL_Update_State(b);
+	b->GOL_Update_State();
   	omp_unset_lock(&writelock);
     }
   }
@@ -396,6 +396,7 @@ void Grid::ApplyGOL(){
   update_timer = ElapsedTime(ReadTSC() - t1);
   cout << "Time to apply Game Of Life rules for 1 generation: "
        << update_timer << endl;
+
 }
 
 inline void Grid::Fire_Update_State(Cell* cell)

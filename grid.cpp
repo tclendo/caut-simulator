@@ -277,64 +277,6 @@ inline void Grid::Find_Live_Neighbors(Cell* cell, int i, int j)
     cell->Add_Neighbor(cellArray[i+1][j]->Get_Curr_State());
 }
 
-inline void Grid::Edit_Neighbors(int i, int j) {
-  // bottom left
-  if(Is_Safe_Coord(j-1, i+1)) {
-    Cell *bl = cellArray[i+1][j-1];
-    bl->Add_Neighbor(1);
-    GOL_Update_State(bl);
-  }
-  
-  //left
-  if(Is_Safe_Coord(j-1, i)) {
-    Cell* l = cellArray[i][j-1];
-    l->Add_Neighbor(1);
-    GOL_Update_State(l);
-  }
-  
-  //top left
-  if(Is_Safe_Coord(j-1, i-1)) {
-    Cell* tl = cellArray[i-1][j-1];
-    tl->Add_Neighbor(1);
-    GOL_Update_State(tl);
-  }
-  
-  //top
-  if(Is_Safe_Coord(j, i-1)) {
-    Cell* t = cellArray[i-1][j];
-    t->Add_Neighbor(1);
-    GOL_Update_State(t);
-  }
-  
-  //top right
-  if(Is_Safe_Coord(j+1, i-1)) {
-    Cell* tr = cellArray[i-1][j+1];
-    tr->Add_Neighbor(1);
-    GOL_Update_State(tr);
-  }
-
-  //right 
-  if(Is_Safe_Coord(j+1, i)) {
-    Cell* r = cellArray[i][j+1];
-    r->Add_Neighbor(1);
-    GOL_Update_State(r);
-  }
-  
-  //bottom right
-  if(Is_Safe_Coord(j+1, i+1)) {
-    Cell* br = cellArray[i+1][j+1];
-    br->Add_Neighbor(1);
-    GOL_Update_State(br);
-  }
-  
-  //bottom	
-  if(Is_Safe_Coord(j, i+1)) {
-    Cell* b = cellArray[i+1][j];
-    b->Add_Neighbor(1);
-    GOL_Update_State(b);
-  }
-}
-
 inline bool Grid::Is_Safe_Coord(int x, int y) {
   return (((x < cols) && (y < rows)) && ((x >= 0) && (y >= 0)));
 }

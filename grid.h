@@ -44,6 +44,8 @@ private:
   int ruleSet;
 
   std::vector<Cell*> live_cells;
+  std::vector<Cell*> new_cells;
+  std::map<Cell*, bool> potential_cells;
 
   inline void Find_Live_Neighbors(Cell* cell, int i, int j);
   inline void Edit_Neighbors(int i, int j);

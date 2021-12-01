@@ -49,18 +49,6 @@ Grid::~Grid(){
   delete [] cellArray;
 }
 
-unsigned int Grid::Get_Rows() {
-	return this->rows;
-}
-
-unsigned int Grid::Get_Cols() {
-	return this->cols;
-}
-
-unsigned int Grid::Get_Ruleset() {
-	return this->ruleSet;
-}
-
 void Grid::Curr_Print(fstream * grid_file) {
   /*Print the current state of all the cells. Define the VISUALIZATION macro
 	in order to write to the output file so that the data can be used with OpenGL*/
@@ -194,10 +182,15 @@ void Grid::ApplyRules(){
     ApplyFire();
     break;
 
+  case 3 :
+	ApplyFlocking();
+	break;
+
   default:
     cout<<"Undefined rule set defined rule sets are:"<<endl;
     cout<<"1: Game of Life"<<endl;
 	cout<<"2: Forest Fire Spread Simulation"<<endl;
+	cout<<"3: Flocking Simulation"<<endl;
     exit(EXIT_FAILURE);
   }
 
@@ -418,4 +411,32 @@ void Grid::ApplyFire()
   update_timer = ElapsedTime(ReadTSC() - t2);
   cout << "Time to apply Fire Simulation rules for 1 generation: "
        << update_timer << endl;
+}
+
+inline void Grid::Flocking_Update_State(Cell* cell) {}
+
+void Grid::ApplyFlocking() {
+  /* 
+	 Basic version of algorithm modeling the way groups of birds or fish
+	 tend to move.
+   */
+  double update_timer = 0.0;
+  uint64_t t3;
+  t3 = ReadTSC();
+	
+  #pragma omp parallel for schedule(static)
+  for(int i=0; i<rows; ++i){
+    for(int j=0; j<cols; ++j){
+      Cell* current = cellArray[i][j];
+	  // if the cell doesnt have a direction it's "empty space"
+	  if (current->Flock_Get_Curr_X_State() || current->Flock_Get_Curr_Y_State()) {
+      	Find_Live_Neighbors(current, i, j);
+      	Flocking_Update_State(current);
+      	current->Clear_Neighbors();
+	  }
+    }
+  }
+
+  cout << "Time to apply Flocking Simulation rules for 1 generation: "
+       << ElapsedTime(ReadTSC() - t3) << endl;
 }

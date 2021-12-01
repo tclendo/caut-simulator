@@ -17,6 +17,31 @@ public:
   int Get_Next_State() const { return next_state; }
   void Set_Next_State(int state) { next_state = state; }
 
+/**********************************************************************************
+ Separate getter and setter functions for Flocking as it uses different state types
+ **********************************************************************************/
+  // Flocking previous state
+  int Flock_Get_Prev_X_State() const { return flock_prev_state[0]; }
+  int Flock_Get_Prev_Y_State() const { return flock_prev_state[1]; }
+  void Flock_Set_Prev_State(int x, int y) { 
+	  flock_prev_state[0] = x; 
+	  flock_prev_state[1] = y; 
+  }
+  // Flocking current state
+  int Flock_Get_Curr_X_State() const { return flock_curr_state[0]; }
+  int Flock_Get_Curr_Y_State() const { return flock_curr_state[1]; }
+  void Flock_Set_Curr_State(int x, int y) { 
+	  flock_curr_state[0] = x; 
+	  flock_curr_state[1] = y; 
+  }
+  // Flocking next state
+  int Flock_Get_Next_X_State() const { return flock_next_state[0]; }
+  int Flock_Get_Next_Y_State() const { return flock_next_state[1]; }
+  void Flock_Set_Next_State(int x, int y) { 
+	  flock_next_state[0] = x; 
+	  flock_next_state[1] = y; 
+  }
+
   // getter for x and y coords
   int Get_X_Coord() const { return x; }
   int Get_Y_Coord() const { return y; }
@@ -52,7 +77,7 @@ private:
 
   unsigned int live_neighbors;
 
-	/*
+  /*
 	 fire sim specific:
 
 	 	1. hp:			 
@@ -73,7 +98,18 @@ private:
 									on fire enough not only
 									dry or dead plants
 									will burn.
-	*/
-	double hp;
-	double dry_brush;
+  */
+  double hp;
+  double dry_brush;
+  
+  /*
+	 flocking sim specific states:
+
+	 	using arrays of size two as vectors for direction of "motion" 
+		of the cells to keep track of the state of each cell.
+		initialize all to 0,0
+  */
+  int flock_prev_state[2];
+  int flock_curr_state[2];
+  int flock_next_state[2];
 };

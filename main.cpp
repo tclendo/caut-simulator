@@ -10,6 +10,7 @@
 #include <sstream>
 #include <ctime>
 #include <unistd.h>
+#include <cmath>
 //#define VISUALIZATION
 
 #include "common.h"
@@ -126,7 +127,25 @@ Grid* read_file(vector <Cell*> &init, char* in_file, int ruleset) {
   Grid* grid = new Grid(rows, columns, ruleset);
 	
 	if(strncmp(in_file, "inputs/ra", 9) == 0){
-		
+
+	  if (ruleset == 3) {
+		srand(time(NULL));
+		for(int i=0; i<rows; ++i){
+			for(int j=0; j<columns; ++j){
+				// generate random ints of value -1,0,1 for the x and y direction
+				int vec_x = (int) pow(-1.0, double(rand() % 3));
+				int vec_y = (int) pow(-1.0, double(rand() % 3));
+				// if either value is non-zero, set the current state of the cell
+				if(vec_x || vec_y){
+					Cell* input_cell = grid->Get_Cell(i,j);
+					input_cell->Set_Curr_State(1);
+					input_cell->Flock_Set_Curr_State(vec_x, vec_y);
+					init.push_back(input_cell);
+				}
+			}
+		}
+	  }
+	  else {
 		srand(time(NULL));
 		for(int i=0; i<rows; ++i){
 			for(int j=0; j<columns; ++j){
@@ -138,8 +157,35 @@ Grid* read_file(vector <Cell*> &init, char* in_file, int ruleset) {
 				}
 			}
 		}
+	  }
 	}
   // Create a new live cell based on the x y coordinates from each input line
+	else if (ruleset == 3) {
+      while (getline(file, line)) {
+
+ 	    istringstream iss(line);
+ 	    unsigned int x;
+ 	    unsigned int y;
+		unsigned int vec_x;
+		unsigned int vec_y;
+
+ 	    if (!(iss >> x >> y >> vec_x >> vec_y)) {break;}
+
+ 	    // cout << "x: " << x << " y: " << y << endl;
+
+ 	    /*
+		   given the x and y coordinate of our input line, we want to set the 
+		   direction of motion for our flocking simulation. We call Get_Cell 
+		   and then Flock_Set_Curr_State
+		*/
+ 	    Cell* input_cell = grid->Get_Cell(x, y);
+		input_cell->Set_Curr_State(1);
+ 	    input_cell->Flock_Set_Curr_State(vec_x, vec_y);
+
+ 	    // we also want to add this to our vector of live cells
+ 	    init.push_back(input_cell);
+ 	  }
+	}
 	else{
 	
  	 while (getline(file, line)) {

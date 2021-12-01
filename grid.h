@@ -19,9 +19,9 @@ public:
   void Next_Print();
   void Get_Num_Cells();
   void Get_Live_Cells();
-  unsigned int Get_Rows();
-  unsigned int Get_Cols();
-  unsigned int Get_Ruleset();
+  unsigned int Get_Rows() const { return rows; }
+  unsigned int Get_Cols() const { return cols; }
+  unsigned int Get_Ruleset() const { return ruleSet; }
   void ApplyRules();
 
   // get the cell pointer from a given coordinate
@@ -50,10 +50,12 @@ private:
   inline bool Is_Safe_Coord(int x, int y);
   inline void GOL_Update_State(Cell* cell);
   inline void Fire_Update_State(Cell* cell);
+  inline void Flocking_Update_State(Cell* cell);
 
   void Prepare_Next(std::vector<Cell*> potential);
 
   void ApplyGOL();
   void ApplyFire();
+  void ApplyFlocking();
 
 };

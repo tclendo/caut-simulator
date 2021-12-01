@@ -1,0 +1,15 @@
+#!/bin/bash
+#SBATCH --job-name=caut
+#SBATCH --output=Fire_28thr_Nvis.out
+#SBATCH --error=Fire_28thr_Nvis.err
+#SBATCH --partition=fat
+#SBATCH --time=01:00:00
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --cpus-per-task=28
+#SBATCH --account=cis431_531
+
+export OMP_NUM_THREADS=28
+export OMP_PROC_BIND=true
+
+for i in {1..15} ; do ./caut input/Fire1.caut 2 50; done

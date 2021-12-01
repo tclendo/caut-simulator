@@ -208,7 +208,8 @@ void Grid::ApplyRules(){
     }
   }
 
-  cout << "Time to update grid: " << ElapsedTime(ReadTSC() - t0) << endl;
+  update_timer = ElapsedTime(ReadTSC() - t0);
+  cout << "Time to update grid: " << update_timer << endl;
 }
 
 //TODO: find everywhere this is used and change its name to GOL specific name to avoid confusion
@@ -292,8 +293,9 @@ void Grid::ApplyGOL(){
     }
   }
 
+  update_timer = ElapsedTime(ReadTSC() - t1);
   cout << "Time to apply Game Of Life rules for 1 generation: "
-       << ElapsedTime(ReadTSC() - t1) << endl;
+       << update_timer << endl;
 }
 
 inline void Grid::Fire_Update_State(Cell* cell)
@@ -323,7 +325,7 @@ void Grid::ApplyFire()
   uint64_t t2;
   t2 = ReadTSC();
 	
-  #pragma omp parallel for schedule(static)
+  #pragma omp parallel for
   for(int i=0; i<rows; ++i){
 		
     for(int j=0; j<cols; ++j){
@@ -334,8 +336,9 @@ void Grid::ApplyFire()
     }
   }
 
+  update_timer = ElapsedTime(ReadTSC() - t2);
   cout << "Time to apply Fire Simulation rules for 1 generation: "
-       << ElapsedTime(ReadTSC() - t2) << endl;
+       << update_timer << endl;
 }
 
 inline void Grid::Flocking_Update_State(Cell* cell) {}

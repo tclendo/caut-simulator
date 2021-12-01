@@ -1,3 +1,5 @@
+#include <omp.h>
+
 class Cell {
 public:
 

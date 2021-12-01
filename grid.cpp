@@ -3,6 +3,7 @@
 #include <iostream>
 #include <omp.h>
 #include <time.h>
+#include <utility>
 
 #include "common.h"
 #include "grid.h"
@@ -181,9 +182,8 @@ void Grid::Print_Live_Cells() {
   }
 }
 
-
 void Grid::ApplyRules(){
-	
+
   switch(ruleSet){
 	
   case 1 :
@@ -201,22 +201,31 @@ void Grid::ApplyRules(){
     exit(EXIT_FAILURE);
   }
 
+  // we clear live cells and then remake it the next generation
+  live_cells.clear();
+	
   double update_timer = 0.0;
   uint64_t t0;
   t0 = ReadTSC();
 
   //all current states now need to be equal to next states
-  #pragma omp parallel for
+  // #pragma omp parallel for
   for(int i=0; i<rows; ++i){
     for(int j=0; j<cols; ++j){
       cellArray[i][j]->Set_Prev_State(cellArray[i][j]->Get_Curr_State());
       
       cellArray[i][j]->Set_Curr_State(cellArray[i][j]->Get_Next_State());
+      if (cellArray[i][j]->Get_Curr_State() == 1) {
+	live_cells.push_back(cellArray[i][j]);
+      }
+
+      cellArray[i][j]->Clear_Neighbors();
     }
   }
 
   update_timer = ElapsedTime(ReadTSC() - t0);
   cout << "Time to update grid: " << update_timer << endl;
+
 }
 
 //TODO: find everywhere this is used and change its name to GOL specific name to avoid confusion
@@ -241,11 +250,11 @@ inline void Grid::GOL_Update_State(Cell* cell) {
 
 inline void Grid::Find_Live_Neighbors(Cell* cell, int i, int j)
 {
-      //bottm left
+  //bottm left
   if(Is_Safe_Coord(j-1, i+1))
     cell->Add_Neighbor(cellArray[i+1][j-1]->Get_Curr_State());
-  
-  //left
+
+  // left
   if(Is_Safe_Coord(j-1, i))
     cell->Add_Neighbor(cellArray[i][j-1]->Get_Curr_State());
   
@@ -274,31 +283,94 @@ inline void Grid::Find_Live_Neighbors(Cell* cell, int i, int j)
     cell->Add_Neighbor(cellArray[i+1][j]->Get_Curr_State());
 }
 
+inline void Grid::Edit_Neighbors(int i, int j) {
+  // bottom left
+  if(Is_Safe_Coord(j-1, i+1)) {
+    Cell *bl = cellArray[i+1][j-1];
+    bl->Add_Neighbor(1);
+    GOL_Update_State(bl);
+  }
+  
+  //left
+  if(Is_Safe_Coord(j-1, i)) {
+    Cell* l = cellArray[i][j-1];
+    l->Add_Neighbor(1);
+    GOL_Update_State(l);
+  }
+  
+  //top left
+  if(Is_Safe_Coord(j-1, i-1)) {
+    Cell* tl = cellArray[i-1][j-1];
+    tl->Add_Neighbor(1);
+    GOL_Update_State(tl);
+  }
+  
+  //top
+  if(Is_Safe_Coord(j, i-1)) {
+    Cell* t = cellArray[i-1][j];
+    t->Add_Neighbor(1);
+    GOL_Update_State(t);
+  }
+  
+  //top right
+  if(Is_Safe_Coord(j+1, i-1)) {
+    Cell* tr = cellArray[i-1][j+1];
+    tr->Add_Neighbor(1);
+    GOL_Update_State(tr);
+  }
+
+  //right 
+  if(Is_Safe_Coord(j+1, i)) {
+    Cell* r = cellArray[i][j+1];
+    r->Add_Neighbor(1);
+    GOL_Update_State(r);
+  }
+  
+  //bottom right
+  if(Is_Safe_Coord(j+1, i+1)) {
+    Cell* br = cellArray[i+1][j+1];
+    br->Add_Neighbor(1);
+    GOL_Update_State(br);
+  }
+  
+  //bottom	
+  if(Is_Safe_Coord(j, i+1)) {
+    Cell* b = cellArray[i+1][j];
+    b->Add_Neighbor(1);
+    GOL_Update_State(b);
+  }
+}
+
 inline bool Grid::Is_Safe_Coord(int x, int y) {
   return (((x < cols) && (y < rows)) && ((x >= 0) && (y >= 0)));
 }
 
 void Grid::ApplyGOL(){
 	
+  
   double update_timer = 0.0;
   uint64_t t1;
   t1 = ReadTSC();
 	
-  #pragma omp parallel for
-  for(int i=0; i<rows; ++i){
-    for(int j=0; j<cols; ++j){
-      //count alive neighbors for each cell
-      Cell* current = cellArray[i][j];
-			
-      Find_Live_Neighbors(current, i, j);
-
-      //now that we have summed up the amount of alive neighbors we can perform ops
-      GOL_Update_State(cellArray[i][j]);
-
-      // we don't need neighbor information anymore for this cell
-      current->Clear_Neighbors();
-    }
+  for (Cell* cell : live_cells) {
+    Edit_Neighbors(cell->Get_X_Coord(), cell->Get_Y_Coord());
   }
+
+  // #pragma omp parallel for
+  // for(int i=0; i<rows; ++i){
+  //   for(int j=0; j<cols; ++j){
+  //     //count alive neighbors for each cell
+  //     Cell* current = cellArray[i][j];
+			
+  //     Find_Live_Neighbors(current, i, j);
+
+  //     //now that we have summed up the amount of alive neighbors we can perform ops
+  //     GOL_Update_State(cellArray[i][j]);
+
+  //     // we don't need neighbor information anymore for this cell
+  //     current->Clear_Neighbors();
+  //   }
+  // }
 
   update_timer = ElapsedTime(ReadTSC() - t1);
   cout << "Time to apply Game Of Life rules for 1 generation: "

@@ -292,7 +292,9 @@ void Grid::ApplyGOL(){
   omp_init_lock(&writelock);
 
   #pragma omp parallel for
-  for (Cell* cell : live_cells) {
+  for (int a = 0; a < live_cells.size() ; a++) {
+    Cell* cell = live_cells[a];
+
     // Edit_Neighbors(cell->Get_X_Coord(), cell->Get_Y_Coord());
     int i = cell->Get_X_Coord();
     int j = cell->Get_Y_Coord();

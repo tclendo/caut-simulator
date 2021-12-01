@@ -202,7 +202,7 @@ void Grid::ApplyRules(){
   t0 = ReadTSC();
 
   //all current states now need to be equal to next states
-  #pragma omp parallel for
+  #pragma omp parallel for schedule(static)
   for(int i=0; i<rows; ++i){
     for(int j=0; j<cols; ++j){
       cellArray[i][j]->Set_Prev_State(cellArray[i][j]->Get_Curr_State());
@@ -271,7 +271,7 @@ void Grid::ApplyGOL(){
   // omp_lock_t writelock;
   // omp_init_lock(&writelock);
 
-  // #pragma omp parallel for
+  // #pragma omp parallel for schedule(static)
   // for (int a = 0; a < live_cells.size(); a++) {
   //   Cell* cell = live_cells[a];
 

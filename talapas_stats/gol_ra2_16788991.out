@@ -1,0 +1,132 @@
+1 Thread
+Time to apply Game Of Life rules for 1 generation: 6.48194e-05
+Time to update grid: 2.05076e-06
+Time to apply Game Of Life rules for 1 generation: 1.22735e-06
+Time to update grid: 1.19076e-06
+Time to apply Game Of Life rules for 1 generation: 1.17623e-06
+Time to update grid: 1.16119e-06
+Time to apply Game Of Life rules for 1 generation: 1.17623e-06
+Time to update grid: 1.17523e-06
+Time to apply Game Of Life rules for 1 generation: 1.14415e-06
+Time to update grid: 1.17773e-06
+Time to apply Game Of Life rules for 1 generation: 1.14415e-06
+Time to update grid: 1.21532e-06
+Time to apply Game Of Life rules for 1 generation: 1.14917e-06
+Time to update grid: 1.18425e-06
+Time to apply Game Of Life rules for 1 generation: 1.14115e-06
+Time to update grid: 1.17823e-06
+Time to apply Game Of Life rules for 1 generation: 1.13964e-06
+Time to update grid: 1.17974e-06
+Time to apply Game Of Life rules for 1 generation: 1.14415e-06
+Time to update grid: 1.18425e-06
+Total simulation run time: 0.000465541
+2 Threads
+Time to apply Game Of Life rules for 1 generation: 0.000217795
+Time to update grid: 5.75645e-06
+Time to apply Game Of Life rules for 1 generation: 2.57552e-06
+Time to update grid: 2.46426e-06
+Time to apply Game Of Life rules for 1 generation: 2.9529e-06
+Time to update grid: 3.05815e-06
+Time to apply Game Of Life rules for 1 generation: 2.22971e-06
+Time to update grid: 2.67575e-06
+Time to apply Game Of Life rules for 1 generation: 2.58153e-06
+Time to update grid: 2.54896e-06
+Time to apply Game Of Life rules for 1 generation: 2.41915e-06
+Time to update grid: 2.54595e-06
+Time to apply Game Of Life rules for 1 generation: 2.74943e-06
+Time to update grid: 2.49333e-06
+Time to apply Game Of Life rules for 1 generation: 2.70933e-06
+Time to update grid: 2.75093e-06
+Time to apply Game Of Life rules for 1 generation: 2.41164e-06
+Time to update grid: 3.05013e-06
+Time to apply Game Of Life rules for 1 generation: 2.63516e-06
+Time to update grid: 2.85267e-06
+Total simulation run time: 0.000635175
+4 Threads
+Time to apply Game Of Life rules for 1 generation: 0.000306181
+Time to update grid: 8.43946e-06
+Time to apply Game Of Life rules for 1 generation: 4.49035e-06
+Time to update grid: 3.84887e-06
+Time to apply Game Of Life rules for 1 generation: 3.92906e-06
+Time to update grid: 3.79675e-06
+Time to apply Game Of Life rules for 1 generation: 5.1178e-06
+Time to update grid: 4.90381e-06
+Time to apply Game Of Life rules for 1 generation: 4.771e-06
+Time to update grid: 4.82813e-06
+Time to apply Game Of Life rules for 1 generation: 5.92115e-06
+Time to update grid: 4.32848e-06
+Time to apply Game Of Life rules for 1 generation: 4.80007e-06
+Time to update grid: 4.60762e-06
+Time to apply Game Of Life rules for 1 generation: 4.80658e-06
+Time to update grid: 4.71838e-06
+Time to apply Game Of Life rules for 1 generation: 5.73623e-06
+Time to update grid: 4.55049e-06
+Time to apply Game Of Life rules for 1 generation: 4.76649e-06
+Time to update grid: 4.92385e-06
+Total simulation run time: 0.000780266
+8 Threads
+Time to apply Game Of Life rules for 1 generation: 0.000401394
+Time to update grid: 5.49122e-06
+Time to apply Game Of Life rules for 1 generation: 5.14742e-06
+Time to update grid: 4.37012e-06
+Time to apply Game Of Life rules for 1 generation: 4.7495e-06
+Time to update grid: 4.99457e-06
+Time to apply Game Of Life rules for 1 generation: 4.99306e-06
+Time to update grid: 4.89584e-06
+Time to apply Game Of Life rules for 1 generation: 6.1758e-06
+Time to update grid: 5.38597e-06
+Time to apply Game Of Life rules for 1 generation: 5.58544e-06
+Time to update grid: 5.80595e-06
+Time to apply Game Of Life rules for 1 generation: 5.23512e-06
+Time to update grid: 5.2692e-06
+Time to apply Game Of Life rules for 1 generation: 5.73478e-06
+Time to update grid: 5.40001e-06
+Time to apply Game Of Life rules for 1 generation: 4.76955e-06
+Time to update grid: 4.94044e-06
+Time to apply Game Of Life rules for 1 generation: 4.47787e-06
+Time to update grid: 4.76955e-06
+Total simulation run time: 0.00229154
+16 Threads
+Time to apply Game Of Life rules for 1 generation: 0.000649533
+Time to update grid: 9.67811e-06
+Time to apply Game Of Life rules for 1 generation: 8.65572e-06
+Time to update grid: 1.01141e-05
+Time to apply Game Of Life rules for 1 generation: 8.09291e-06
+Time to update grid: 9.5007e-06
+Time to apply Game Of Life rules for 1 generation: 7.63785e-06
+Time to update grid: 7.60978e-06
+Time to apply Game Of Life rules for 1 generation: 3.57265e-05
+Time to update grid: 8.95943e-06
+Time to apply Game Of Life rules for 1 generation: 1.07376e-05
+Time to update grid: 1.1117e-05
+Time to apply Game Of Life rules for 1 generation: 9.32829e-06
+Time to update grid: 1.06374e-05
+Time to apply Game Of Life rules for 1 generation: 1.10308e-05
+Time to update grid: 1.0056e-05
+Time to apply Game Of Life rules for 1 generation: 1.28144e-05
+Time to update grid: 1.06293e-05
+Time to apply Game Of Life rules for 1 generation: 1.31648e-05
+Time to update grid: 1.20081e-05
+Total simulation run time: 0.00126319
+28 Threads
+Time to apply Game Of Life rules for 1 generation: 0.00472019
+Time to update grid: 1.22671e-05
+Time to apply Game Of Life rules for 1 generation: 4.00209e-05
+Time to update grid: 1.31758e-05
+Time to apply Game Of Life rules for 1 generation: 1.55067e-05
+Time to update grid: 1.21624e-05
+Time to apply Game Of Life rules for 1 generation: 1.26696e-05
+Time to update grid: 1.21915e-05
+Time to apply Game Of Life rules for 1 generation: 1.33607e-05
+Time to update grid: 1.44708e-05
+Time to apply Game Of Life rules for 1 generation: 1.37306e-05
+Time to update grid: 1.36428e-05
+Time to apply Game Of Life rules for 1 generation: 1.34684e-05
+Time to update grid: 1.52556e-05
+Time to apply Game Of Life rules for 1 generation: 1.4352e-05
+Time to update grid: 1.30304e-05
+Time to apply Game Of Life rules for 1 generation: 1.48918e-05
+Time to update grid: 1.48221e-05
+Time to apply Game Of Life rules for 1 generation: 1.12062e-05
+Time to update grid: 1.22767e-05
+Total simulation run time: 0.00542713

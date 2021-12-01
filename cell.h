@@ -107,7 +107,7 @@ private:
 		of the cells to keep track of the state of each cell.
 		initialize all to 0,0
   */
-  int flock_prev_state[2] = {0,0};
-  int flock_curr_state[2] = {0,0};
-  int flock_next_state[2] = {0,0};
+  int flock_prev_state[2];
+  int flock_curr_state[2];
+  int flock_next_state[2];
 };

@@ -10,6 +10,7 @@
 #include <sstream>
 #include <ctime>
 #include <unistd.h>
+#include <cmath>
 //#define VISUALIZATION
 
 #include "common.h"

@@ -149,8 +149,8 @@ Grid* read_file(vector <Cell*> &init, char* in_file, int ruleset) {
 		srand(time(NULL));
 		for(int i=0; i<rows; ++i){
 			for(int j=0; j<columns; ++j){
-				int liveness = rand() % 2;	
-				if(liveness){
+			  int liveness = rand() % 10;
+				if(!liveness){
 					Cell* input_cell = grid->Get_Cell(i,j);
 					input_cell->Set_Curr_State(1);
 					init.push_back(input_cell);

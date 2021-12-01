@@ -214,7 +214,7 @@ void Grid::ApplyRules(){
 	live_cells.push_back(cellArray[i][j]);
       }
 
-      // cellArray[i][j]->Clear_Neighbors();
+      cellArray[i][j]->Clear_Neighbors();
     }
   }
 
@@ -268,8 +268,8 @@ void Grid::ApplyGOL(){
   uint64_t t1;
   t1 = ReadTSC();
 
-  // omp_lock_t writelock;
-  // omp_init_lock(&writelock);
+  omp_lock_t writelock;
+  omp_init_lock(&writelock);
 
   // #pragma omp parallel for schedule(static)
   // for (int a = 0; a < live_cells.size(); a++) {

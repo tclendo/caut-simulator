@@ -3,6 +3,7 @@
 #include <iostream>
 #include <omp.h>
 #include <time.h>
+#include <utility>
 
 #include "common.h"
 #include "grid.h"
@@ -169,9 +170,8 @@ void Grid::Print_Live_Cells() {
   }
 }
 
-
 void Grid::ApplyRules(){
-	
+
   switch(ruleSet){
 	
   case 1 :
@@ -194,17 +194,27 @@ void Grid::ApplyRules(){
     exit(EXIT_FAILURE);
   }
 
+  // we clear live cells and then remake it the next generation
+  live_cells.clear();
+	
   double update_timer = 0.0;
   uint64_t t0;
   t0 = ReadTSC();
 
   //all current states now need to be equal to next states
-  #pragma omp parallel for
+  #pragma omp parallel for schedule(static)
   for(int i=0; i<rows; ++i){
     for(int j=0; j<cols; ++j){
       cellArray[i][j]->Set_Prev_State(cellArray[i][j]->Get_Curr_State());
       
       cellArray[i][j]->Set_Curr_State(cellArray[i][j]->Get_Next_State());
+      if (cellArray[i][j]->Get_Curr_State() == 1) {
+	// adding to the live cell array is a critical operation
+	#pragma omp critical
+	live_cells.push_back(cellArray[i][j]);
+      }
+
+      cellArray[i][j]->Clear_Neighbors();
     }
   }
 
@@ -227,35 +237,16 @@ void Grid::ApplyRules(){
 
   update_timer = ElapsedTime(ReadTSC() - t0);
   cout << "Time to update grid: " << update_timer << endl;
-}
 
-//TODO: find everywhere this is used and change its name to GOL specific name to avoid confusion
-inline void Grid::GOL_Update_State(Cell* cell) {
-
-  if ((cell->Get_Curr_State() == 0)) { 
-    if (cell->Get_Neighbors() == 3)
-      cell->Set_Next_State(1);
-    else
-      cell->Set_Next_State(0);
-  }
-  
-  else {
-    if ((cell->Get_Neighbors() < 2) || (cell->Get_Neighbors() > 3)) {
-      cell->Set_Next_State(0);
-
-    } else
-      cell->Set_Next_State(1);
-      
-  }
 }
 
 inline void Grid::Find_Live_Neighbors(Cell* cell, int i, int j)
 {
-      //bottm left
+  //bottm left
   if(Is_Safe_Coord(j-1, i+1))
     cell->Add_Neighbor(cellArray[i+1][j-1]->Get_Curr_State());
-  
-  //left
+
+  // left
   if(Is_Safe_Coord(j-1, i))
     cell->Add_Neighbor(cellArray[i][j-1]->Get_Curr_State());
   
@@ -289,30 +280,120 @@ inline bool Grid::Is_Safe_Coord(int x, int y) {
 }
 
 void Grid::ApplyGOL(){
-	
+  
   double update_timer = 0.0;
   uint64_t t1;
   t1 = ReadTSC();
-	
-  #pragma omp parallel for
-  for(int i=0; i<rows; ++i){
-    for(int j=0; j<cols; ++j){
-      //count alive neighbors for each cell
-      Cell* current = cellArray[i][j];
-			
-      Find_Live_Neighbors(current, i, j);
 
-      //now that we have summed up the amount of alive neighbors we can perform ops
-      GOL_Update_State(cellArray[i][j]);
+  omp_lock_t writelock;
+  omp_init_lock(&writelock);
 
-      // we don't need neighbor information anymore for this cell
-      current->Clear_Neighbors();
+  #pragma omp parallel for schedule(static)
+  for (int a = 0; a < live_cells.size(); a++) {
+    Cell* cell = live_cells[a];
+
+    // Edit_Neighbors(cell->Get_X_Coord(), cell->Get_Y_Coord());
+    int i = cell->Get_X_Coord();
+    int j = cell->Get_Y_Coord();
+
+    // bottom left
+    if(Is_Safe_Coord(j-1, i+1)) {
+  	Cell *bl = cellArray[i+1][j-1];
+
+  	// we need to increase the live neighbor count by 1
+  	// and then add it to the potential cells list
+  	omp_set_lock(&writelock);
+  	bl->Add_Neighbor(1);
+  	bl->GOL_Update_State();
+  	omp_unset_lock(&writelock);
+    }
+
+    //left
+    if(Is_Safe_Coord(j-1, i)) {
+  	Cell* l = cellArray[i][j-1];
+  	omp_set_lock(&writelock);
+  	l->Add_Neighbor(1);
+  	l->GOL_Update_State();
+  	omp_unset_lock(&writelock);
+    }
+
+    //top left
+    if(Is_Safe_Coord(j-1, i-1)) {
+  	Cell* tl = cellArray[i-1][j-1];
+  	omp_set_lock(&writelock);
+  	tl->Add_Neighbor(1);
+  	tl->GOL_Update_State();
+  	omp_unset_lock(&writelock);
+    }
+
+    //top
+    if(Is_Safe_Coord(j, i-1)) {
+  	Cell* t = cellArray[i-1][j];
+  	omp_set_lock(&writelock);
+  	t->Add_Neighbor(1);
+  	t->GOL_Update_State();
+  	omp_unset_lock(&writelock);
+    }
+
+    //top right
+    if(Is_Safe_Coord(j+1, i-1)) {
+  	Cell* tr = cellArray[i-1][j+1];
+  	omp_set_lock(&writelock);
+  	tr->Add_Neighbor(1);
+  	tr->GOL_Update_State();
+  	omp_unset_lock(&writelock);
+    }
+
+    //right 
+    if(Is_Safe_Coord(j+1, i)) {
+  	Cell* r = cellArray[i][j+1];
+  	omp_set_lock(&writelock);
+  	r->Add_Neighbor(1);
+  	r->GOL_Update_State();
+  	omp_unset_lock(&writelock);
+    }
+
+    //bottom right
+    if(Is_Safe_Coord(j+1, i+1)) {
+  	Cell* br = cellArray[i+1][j+1];
+  	omp_set_lock(&writelock);
+  	br->Add_Neighbor(1);
+  	br->GOL_Update_State();
+  	omp_unset_lock(&writelock);
+    }
+
+    //bottom	
+    if(Is_Safe_Coord(j, i+1)) {
+  	Cell* b = cellArray[i+1][j];
+  	omp_set_lock(&writelock);
+  	b->Add_Neighbor(1);
+  	b->GOL_Update_State();
+  	omp_unset_lock(&writelock);
     }
   }
+
+  omp_destroy_lock(&writelock);
+
+  // #pragma omp parallel for schedule(static)
+  // for(int i=0; i<rows; ++i){
+  //   for(int j=0; j<cols; ++j){
+  //     //count alive neighbors for each cell
+  //     Cell* current = cellArray[i][j];
+			
+  //     Find_Live_Neighbors(current, i, j);
+
+  //     //now that we have summed up the amount of alive neighbors we can perform ops
+  //     current->GOL_Update_State();
+
+  //     // we don't need neighbor information anymore for this cell
+  //     current->Clear_Neighbors();
+  //   }
+  // }
 
   update_timer = ElapsedTime(ReadTSC() - t1);
   cout << "Time to apply Game Of Life rules for 1 generation: "
        << update_timer << endl;
+
 }
 
 inline void Grid::Fire_Update_State(Cell* cell)

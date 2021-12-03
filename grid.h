@@ -3,6 +3,7 @@
 #include <sys/cdefs.h>
 #include <utility>
 #include <vector>
+#include <map>
 
 #include "cell.h"
 
@@ -22,7 +23,6 @@ public:
   unsigned int Get_Cols() const { return cols; }
   unsigned int Get_Ruleset() const { return ruleSet; }
   void ApplyRules();
-  void Find_Live_Neighbors(Cell* cell, int i, int j);
 
   // get the cell pointer from a given coordinate
   Cell* Get_Cell(unsigned int x, unsigned int y) { return cellArray[x][y]; }
@@ -44,7 +44,11 @@ private:
   int ruleSet;
 
   std::vector<Cell*> live_cells;
+  std::vector<Cell*> new_cells;
+  std::map<Cell*, bool> potential_cells;
 
+  inline void Find_Live_Neighbors(Cell* cell, int i, int j);
+  inline void Edit_Neighbors(int i, int j);
   inline bool Is_Safe_Coord(int x, int y);
   inline void GOL_Update_State(Cell* cell);
   inline void Fire_Update_State(Cell* cell);

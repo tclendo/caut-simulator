@@ -1,3 +1,5 @@
+#include <omp.h>
+
 class Cell {
 public:
 
@@ -15,6 +17,8 @@ public:
   int Get_Next_State() const { return next_state; }
   void Set_Next_State(int state) { next_state = state; }
 
+  void GOL_Update_State();
+  
 /**********************************************************************************
  Separate getter and setter functions for Flocking as it uses different state types
  **********************************************************************************/

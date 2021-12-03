@@ -208,6 +208,23 @@ void Grid::ApplyRules(){
     }
   }
 
+  // update states for Flocking
+  if (ruleSet == 3) {
+	#pragma omp parallel for
+	for (int i=0; i<rows; ++i){
+	  for(int j=0; j<cols; ++j){
+		Cell * cell = Get_Cell(i, j);
+		// set previous state
+	    cell->Flock_Set_Prev_State(cell->Flock_Get_Curr_X_State(), 
+								   cell->Flock_Get_Curr_Y_State());
+		// set current state
+		cell->Flock_Set_Curr_State(cell->Flock_Get_Next_X_State(), 
+								   cell->Flock_Get_Next_Y_State());
+		// reset next state
+		cell->Flock_Set_Next_State(0,0);
+		cell->Set_Next_State(0);
+  }
+
   update_timer = ElapsedTime(ReadTSC() - t0);
   cout << "Time to update grid: " << update_timer << endl;
 }
@@ -341,7 +358,21 @@ void Grid::ApplyFire()
        << update_timer << endl;
 }
 
-inline void Grid::Flocking_Update_State(Cell* cell) {}
+inline void Grid::Flocking_Update_State(Cell* cell) {
+  int x = cell->Get_X_Coord();
+  int y = cell->Get_Y_Coord();
+  int vec_x = cell->Flock_Get_Curr_X_State();
+  int vec_y = cell->Flock_Get_Curr_Y_State();
+  Cell * neighbor = Get_Cell(x + vec_x, y + vec_y);
+  // if the next spot is empty go there
+  if (!(neighbor->Get_Curr_State()) && !(neighbor) {
+    neighbor->Set_Next_State(1);
+	cell->Set_Next_State(0);
+	neighbor->Flock_Set_Next_State(vec_x, vec_y);
+	cell->Flock_Set_Next_State(0,0);
+  }
+  else if 
+}
 
 void Grid::ApplyFlocking() {
   /* 
@@ -355,7 +386,7 @@ void Grid::ApplyFlocking() {
   #pragma omp parallel for schedule(static)
   for(int i=0; i<rows; ++i){
     for(int j=0; j<cols; ++j){
-      Cell* current = cellArray[i][j];
+      Cell* current = Get_Cell(i,j);
 	  // if the cell doesnt have a direction it's "empty space"
 	  if (current->Flock_Get_Curr_X_State() || current->Flock_Get_Curr_Y_State()) {
       	Find_Live_Neighbors(current, i, j);

@@ -4,6 +4,7 @@
 #include <omp.h>
 #include <time.h>
 #include <utility>
+#include <cmath>
 
 #include "common.h"
 #include "grid.h"
@@ -146,6 +147,118 @@ void Grid::Curr_Print(fstream * grid_file) {
     *grid_file << "\n";
 	#endif
   }
+  // Flocking simulation print
+  if (ruleSet == 3) {
+    for(int i=0; i < rows; ++i){
+      for(int j=0; j < cols; ++j){
+        Cell* curr = cellArray[i][j];
+		#ifdef VISUALIZATION
+		bool change = 
+			curr->Get_Curr_State() != curr->Get_Prev_State();
+	    int x, y;
+		x = curr->Get_X_Coord();
+		y = curr->Get_Y_Coord();
+		#endif
+		int vec_x = curr->Flock_Get_Curr_X_State();
+		int vec_y = curr->Flock_Get_Curr_Y_State();
+
+        if(vec_x == -1) {
+		  if (vec_y == -1) {
+		    #ifdef VISUALIZATION
+	        if (change) {
+			  *grid_file << x << " " 
+				      << y << " " << "/" << endl;
+		    }
+		    #endif
+	        cout << " " <<"/"<< " ";
+		  }
+          if (vec_y == 0) {
+		    #ifdef VISUALIZATION
+	        if (change) {
+			  *grid_file << x << " " 
+				      << y << " " << "<" << endl;
+		    }
+		    #endif
+	        cout << " " <<"<"<< " ";
+		  }
+          if (vec_y == 1) {
+		    #ifdef VISUALIZATION
+	        if (change) {
+			  *grid_file << x << " " 
+				      << y << " " << "\\" << endl;
+		    }
+		    #endif
+	        cout << " " <<"\\"<< " ";
+		  }
+	    }
+
+        else if (vec_x == 0) {	
+		  if (vec_y == -1) {
+		    #ifdef VISUALIZATION
+	        if (change) {
+			  *grid_file << x << " " 
+				      << y << " " << "v" << endl;
+		    }
+		    #endif
+	        cout << " " <<"v"<< " ";
+		  }
+          if (vec_y == 0) {
+		    #ifdef VISUALIZATION
+	        if (change) {
+			  *grid_file << x << " " 
+				      << y << " " << "-" << endl;
+		    }
+		    #endif
+	        cout << " " <<"-"<< " ";
+		  }
+          if (vec_y == 1) {
+		    #ifdef VISUALIZATION
+	        if (change) {
+			  *grid_file << x << " " 
+				      << y << " " << "^" << endl;
+		    }
+		    #endif
+	        cout << " " <<"^"<< " ";
+		  }
+	    }
+
+		else {
+		  if (vec_y == -1) {
+		    #ifdef VISUALIZATION
+	        if (change) {
+			  *grid_file << x << " " 
+				      << y << " " << "\\" << endl;
+		    }
+		    #endif
+	        cout << " " <<"\\"<< " ";
+		  }
+          if (vec_y == 0) {
+		    #ifdef VISUALIZATION
+	        if (change) {
+			  *grid_file << x << " " 
+				      << y << " " << ">" << endl;
+		    }
+		    #endif
+	        cout << " " <<">"<< " ";
+		  }
+          if (vec_y == 1) {
+		    #ifdef VISUALIZATION
+	        if (change) {
+			  *grid_file << x << " " 
+				      << y << " " << "/" << endl;
+		    }
+		    #endif
+	        cout << " " <<"/"<< " ";
+		  }
+		}
+
+      }
+	  cout << endl;
+    }
+	#ifdef VISUALIZATION
+    *grid_file << "\n";
+	#endif
+  }
 }
 
 void Grid::Next_Print(){
@@ -218,7 +331,7 @@ void Grid::ApplyRules(){
     }
   }
 
-  // update states for Flocking
+  // update vector states for Flocking
   if (ruleSet == 3) {
 	#pragma omp parallel for
 	for (int i=0; i<rows; ++i){
@@ -233,6 +346,8 @@ void Grid::ApplyRules(){
 		// reset next state
 		cell->Flock_Set_Next_State(0,0);
 		cell->Set_Next_State(0);
+	  }
+	}
   }
 
   update_timer = ElapsedTime(ReadTSC() - t0);
@@ -442,17 +557,45 @@ void Grid::ApplyFire()
 inline void Grid::Flocking_Update_State(Cell* cell) {
   int x = cell->Get_X_Coord();
   int y = cell->Get_Y_Coord();
+  // if the cell has too many neighbors (but not too many to leave)
+  // have it change direction to branch off from flock
+  if (cell->Get_Neighbors() == 5) {
+	cell->Flock_Set_Curr_State((int) pow(-1.0, double(rand() % 3)),
+							   (int) pow(-1.0, double(rand() % 3)));
+  }
   int vec_x = cell->Flock_Get_Curr_X_State();
   int vec_y = cell->Flock_Get_Curr_Y_State();
   Cell * neighbor = Get_Cell(x + vec_x, y + vec_y);
-  // if the next spot is empty go there
-  if (!(neighbor->Get_Curr_State()) && !(neighbor) {
-    neighbor->Set_Next_State(1);
-	cell->Set_Next_State(0);
-	neighbor->Flock_Set_Next_State(vec_x, vec_y);
-	cell->Flock_Set_Next_State(0,0);
+  int nbr_cur = neighbor->Get_Curr_State();
+  int nbr_nxt = neighbor->Get_Next_State();
+  // there is currently a "boid" there and will be next iteration too
+  // try to follow direction unless it results in a collision
+  int ctr = 0;
+  // after 8 you've checked all neighbors, 
+  // if there are none available something went wrong
+  while (nbr_nxt && (ctr < 8)) {
+	if (nbr_cur) {
+	  vec_x = neighbor->Flock_Get_Curr_X_State();
+	  vec_y = neighbor->Flock_Get_Curr_Y_State();
+	}
+	else {
+      vec_x = neighbor->Flock_Get_Next_X_State();
+	  vec_y = neighbor->Flock_Get_Next_Y_State();
+	}
+	neighbor = Get_Cell(x + vec_x, y + vec_y);
+  	int nbr_cur = neighbor->Get_Curr_State();
+  	int nbr_nxt = neighbor->Get_Next_State();
+	ctr++;
   }
-  else if 
+  if (ctr == 8) {
+	  cerr << "Failure: Cycle was created by Flocking algorithm, trapped boid" << endl;
+	  exit(EXIT_FAILURE);
+  }
+  // if the next spot is empty go there
+  neighbor->Set_Next_State(1);
+  cell->Set_Next_State(0);
+  neighbor->Flock_Set_Next_State(vec_x, vec_y);
+  cell->Flock_Set_Next_State(0,0);
 }
 
 void Grid::ApplyFlocking() {
@@ -464,17 +607,19 @@ void Grid::ApplyFlocking() {
   uint64_t t3;
   t3 = ReadTSC();
 	
-  #pragma omp parallel for schedule(static)
-  for(int i=0; i<rows; ++i){
+  #pragma omp parallel for schedule(static,1) ordered
+  /*for(int i=0; i<rows; ++i){
     for(int j=0; j<cols; ++j){
-      Cell* current = Get_Cell(i,j);
+      Cell* current = Get_Cell(i,j);*/
+  // only need live cells, dont need to check them all
+  for (int a = 0; a < live_cells.size(); a++) {
+    Cell* current = live_cells[a];
 	  // if the cell doesnt have a direction it's "empty space"
-	  if (current->Flock_Get_Curr_X_State() || current->Flock_Get_Curr_Y_State()) {
-      	Find_Live_Neighbors(current, i, j);
+	  //if (current->Flock_Get_Curr_X_State() || current->Flock_Get_Curr_Y_State()) {
+      	Find_Live_Neighbors(current, current->Get_X_Coord(), current->Get_Y_Coord());
+		#pragma omp ordered
       	Flocking_Update_State(current);
       	current->Clear_Neighbors();
-	  }
-    }
   }
 
   cout << "Time to apply Flocking Simulation rules for 1 generation: "

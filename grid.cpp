@@ -167,51 +167,12 @@ void Grid::Curr_Print(fstream * grid_file) {
 		    #ifdef VISUALIZATION
 	        if (change) {
 			  *grid_file << x << " " 
-				      << y << " " << "/" << endl;
-		    }
-		    #endif
-	        cout << " " <<"/"<< " ";
-		  }
-          if (vec_y == 0) {
-		    #ifdef VISUALIZATION
-	        if (change) {
-			  *grid_file << x << " " 
-				      << y << " " << "<" << endl;
-		    }
-		    #endif
-	        cout << " " <<"<"<< " ";
-		  }
-          if (vec_y == 1) {
-		    #ifdef VISUALIZATION
-	        if (change) {
-			  *grid_file << x << " " 
 				      << y << " " << "\\" << endl;
 		    }
 		    #endif
 	        cout << " " <<"\\"<< " ";
 		  }
-	    }
-
-        else if (vec_x == 0) {	
-		  if (vec_y == -1) {
-		    #ifdef VISUALIZATION
-	        if (change) {
-			  *grid_file << x << " " 
-				      << y << " " << "v" << endl;
-		    }
-		    #endif
-	        cout << " " <<"v"<< " ";
-		  }
           if (vec_y == 0) {
-		    #ifdef VISUALIZATION
-	        if (change) {
-			  *grid_file << x << " " 
-				      << y << " " << "-" << endl;
-		    }
-		    #endif
-	        cout << " " <<"-"<< " ";
-		  }
-          if (vec_y == 1) {
 		    #ifdef VISUALIZATION
 	        if (change) {
 			  *grid_file << x << " " 
@@ -220,27 +181,6 @@ void Grid::Curr_Print(fstream * grid_file) {
 		    #endif
 	        cout << " " <<"^"<< " ";
 		  }
-	    }
-
-		else {
-		  if (vec_y == -1) {
-		    #ifdef VISUALIZATION
-	        if (change) {
-			  *grid_file << x << " " 
-				      << y << " " << "\\" << endl;
-		    }
-		    #endif
-	        cout << " " <<"\\"<< " ";
-		  }
-          if (vec_y == 0) {
-		    #ifdef VISUALIZATION
-	        if (change) {
-			  *grid_file << x << " " 
-				      << y << " " << ">" << endl;
-		    }
-		    #endif
-	        cout << " " <<">"<< " ";
-		  }
           if (vec_y == 1) {
 		    #ifdef VISUALIZATION
 	        if (change) {
@@ -249,6 +189,66 @@ void Grid::Curr_Print(fstream * grid_file) {
 		    }
 		    #endif
 	        cout << " " <<"/"<< " ";
+		  }
+	    }
+
+        else if (vec_x == 0) {	
+		  if (vec_y == -1) {
+		    #ifdef VISUALIZATION
+	        if (change) {
+			  *grid_file << x << " " 
+				      << y << " " << "<" << endl;
+		    }
+		    #endif
+	        cout << " " <<"<"<< " ";
+		  }
+          if (vec_y == 0) {
+		    #ifdef VISUALIZATION
+	        if (change) {
+			  *grid_file << x << " " 
+				      << y << " " << " " << endl;
+		    }
+		    #endif
+	        cout << " " <<" "<< " ";
+		  }
+          if (vec_y == 1) {
+		    #ifdef VISUALIZATION
+	        if (change) {
+			  *grid_file << x << " " 
+				      << y << " " << ">" << endl;
+		    }
+		    #endif
+	        cout << " " <<">"<< " ";
+		  }
+	    }
+
+		else {
+		  if (vec_y == -1) {
+		    #ifdef VISUALIZATION
+	        if (change) {
+			  *grid_file << x << " " 
+				      << y << " " << "/" << endl;
+		    }
+		    #endif
+	        cout << " " <<"/"<< " ";
+		  }
+          if (vec_y == 0) {
+		    #ifdef VISUALIZATION
+	        if (change) {
+			  *grid_file << x << " " 
+				      << y << " " << "v" << endl;
+		    }
+		    #endif
+	        cout << " " <<"v"<< " ";
+		  }
+          if (vec_y == 1) {
+		    #ifdef VISUALIZATION
+	        if (change) {
+			  *grid_file << x << " " 
+				      << y << " " << "\\" << endl;
+		    }
+		    #endif
+	        cout << " " <<"\\"<< " ";
 		  }
 		}
 
@@ -573,24 +573,28 @@ inline void Grid::Flocking_Update_State(Cell* cell) {
   int ctr = 0;
   // after 8 you've checked all neighbors, 
   // if there are none available something went wrong
-  while (nbr_nxt && (ctr < 8)) {
-	if (nbr_cur) {
-	  vec_x = neighbor->Flock_Get_Curr_X_State();
-	  vec_y = neighbor->Flock_Get_Curr_Y_State();
-	}
-	else {
-      vec_x = neighbor->Flock_Get_Next_X_State();
-	  vec_y = neighbor->Flock_Get_Next_Y_State();
-	}
-	neighbor = Get_Cell(x + vec_x, y + vec_y);
-  	int nbr_cur = neighbor->Get_Curr_State();
-  	int nbr_nxt = neighbor->Get_Next_State();
-	ctr++;
+  if (nbr_nxt == 1) {
+    do {
+	  if (nbr_cur == 1) {
+	    vec_x = neighbor->Flock_Get_Curr_X_State();
+	    vec_y = neighbor->Flock_Get_Curr_Y_State();
+	  }
+	  else {
+	    vec_x = neighbor->Flock_Get_Next_X_State();
+	    vec_y = neighbor->Flock_Get_Next_Y_State();
+	  }
+	  neighbor = Get_Cell(x + vec_x, y + vec_y);
+  	  nbr_cur = neighbor->Get_Curr_State();
+  	  nbr_nxt = neighbor->Get_Next_State();
+	  ctr++;
+    } while ((nbr_nxt == 1) && (ctr < 8));
   }
+  
+  /*
   if (ctr == 8) {
 	  cerr << "Failure: Cycle was created by Flocking algorithm, trapped boid" << endl;
 	  exit(EXIT_FAILURE);
-  }
+  }*/
   // if the next spot is empty go there
   neighbor->Set_Next_State(1);
   cell->Set_Next_State(0);
@@ -607,7 +611,7 @@ void Grid::ApplyFlocking() {
   uint64_t t3;
   t3 = ReadTSC();
 	
-  #pragma omp parallel for schedule(static,1) ordered
+  #pragma omp parallel for schedule(static)
   /*for(int i=0; i<rows; ++i){
     for(int j=0; j<cols; ++j){
       Cell* current = Get_Cell(i,j);*/
@@ -617,7 +621,7 @@ void Grid::ApplyFlocking() {
 	  // if the cell doesnt have a direction it's "empty space"
 	  //if (current->Flock_Get_Curr_X_State() || current->Flock_Get_Curr_Y_State()) {
       	Find_Live_Neighbors(current, current->Get_X_Coord(), current->Get_Y_Coord());
-		#pragma omp ordered
+		#pragma omp critical
       	Flocking_Update_State(current);
       	current->Clear_Neighbors();
   }

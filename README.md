@@ -1,3 +1,19 @@
+**CAUT: A Cellular Automata Framework for Parallel Programming Practice**
+
+How to Use:
+
+	Make sure OpenMP is installed along with the GNU compiler collection.
+	You should be able to simply run 'make' and executable should be ready
+	to go. To run a simulation, you type in the executable followed by the
+	name of the input file (example files are located in the input folder),
+	followed by the ruleset that you simulation will utilize (1 = game of life,
+	2 = wildfire, 3 = flocking). Finally, if you wish to print to standart
+	output a visualization of the simulation, simply add 'p' at the end of the
+	argument list. An example usage below uses the caut program to run the game of life
+	on the r_pentonimo.caut input and print what's going on.
+	
+	./caut inputs/r_pentonimo.caut 1 20 p
+
 Grid implementation:
 
 	The grid class is implemented currently as a container for an array of

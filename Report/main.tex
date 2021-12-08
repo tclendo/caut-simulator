@@ -17,46 +17,57 @@
 \maketitle
 
 \section{Abstract}
-Our project aimed to find new ways to parallelize cellular automata. We began with what we considered to be a naive approach which essentially iterated across an entire grid of cells doing processing state updates even when some of those state updates had no chance of changing the state of that cell i.e. the cell had no live neighbors in its vicinity thus could not come to life. 
-\par
-The second approach we deemed the "Live Cell Relative Approach". This approach involved only looking at cells who were capable of coming to life on a given iteration thus saving time on the overhead of iterating the entire grid performing some unnecessary updates. Results initially seemed promising but we came to see that they were somewhat inconsistent. Because of this inconsistency we cannot definitively say that our Live Cell Relative algorithm in its current state can outperform the naive version.
+Our project aimed to find new ways to parallelize cellular automata. Our group wanted to create a framework in which we can test various approaches to this, on a variety of different simulations. We first set out to parallelize John Conway's game of life. More specifically, we wanted to parallelize the process of updating each cell on the grid and their state for the next generation, based on the current orientation of neighboring cells on the grid. We came up with two main approaches, and both will be discussed in this report, along with the benefits and downfalls for each. To further test our project's capabilities as a general-purpose system for parallel programming practice, we designed two more simulations after we finished implementing the game of life. These other simulations were a rudimentary forest fire simulation, and a flocking algorithm simulation. Both of these are better real-world examples of how cellular automata can be useful in scientific simulations. We discuss the benefits and shortcomings of the two different parallel approaches in each of these simulations, and the results are fairly interesting. Note that there were some issues with testing on the Talapas supercomputing system, so our report includes findings from that, along with our personal machines. Despite this not being an ideal scenario, there is merit in what we find, which will help improve this project for the future, and how parallel algorithms can be observed on multiple machines.
 
 \section{Introduction to Cellular Automata}
-Cellular Automata (C.A.) are a very popular field of study and important framework when it comes to the realm of computational simulations. Its use spans the spectrum from simulating bio-remediation of contaminated soils to fluid flow simulations. CAMEL for example is a framework which abstracts away some of the hardware specifics of performing such computational simulations and allows the user to focus more time and energy on fine tuning their C.A. implementation. \cite{Cann95} A cellular automaton can be thought of as a collection of cells from which complex behaviors can arise from a relatively simple set of rules. As can be gathered from this view of C.A. it clearly is a very useful method for framing certain phenomena whose characteristics match the specification.
+Cellular Automata (C.A.) is a very popular field of study and important framework when it comes to the realm of computational simulations. Its use spans the spectrum from simulating bio-remediation of contaminated soils to fluid flow simulations. CAMEL for example is a framework which abstracts away some of the hardware specifics of performing such computational simulations and allows the user to focus more time and energy on fine tuning their C.A. implementation. \cite{Cann95} A cellular automaton can be thought of as a collection of cells from which complex behaviors can arise from a relatively simple set of rules. As can be gathered from this view of C.A. it clearly is a very useful method for framing certain phenomena whose characteristics match the specification.
+
+One of the most widely known CA simulations out there is John Conway's Game of Life. The Game of Life is a game where there exists an m bhy n grid of cells, and the cells can be either alive or dead. The player instantiates the grid with a certain amount of live cells, and begins the simulation. Each subsequent generation of cells on the grid will be either live or dead based on 3 rules. 1: Any live cell with fewer than two live neighbors dies, as if by underpopulation. 2: Any live cell with two or three neighbors lives on to the next generation. 3: Any live cell with more than three neighbors dies, as if by overpopulation.
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=0.5\textwidth]{glider.PNG}
+\caption{\label{fig:chart_0}An example of a 'glider', a complex pattern that arises in the game of life.}
+\end{figure}
+
+This game may be seemingly pointless, although there are a lot of interesting behaviors that arise when cells are instantiated in a certain way. As is for other CA simulations, we can define a relatively simple set of rules in which complex behavior can arise. Our group first tried to implement the game of life from scratch, and parallelizing the process in which the grid updates each cell's state for the next generation. We will discuss the main ways we thought about this in the next section.
 
 \section{Methodology}
+
 Our goal with this project was to obviously get practice with parallel programming. So, we figured since many of our CA simulations we wanted to implement had already been done before, we did not want to look up how others implemented it until after we finished. So, we came up with 2 main approaches to how we could parallelize the simulations we wanted to.
 
 \subsection{The Redundant Approach}
 The simplest approach we could think of involved iterating across the entire m x n grid and perform some action on each cell in the grid. This action involves observing cells around the current cell in order to determine what the state of the current cell would be for the next iteration. Since we store the 'current' state and the 'next' state separately in memory, this allowed us to make changes to each cell on the grid completely independently, which turned the problem of parallelizing each generation of cells an embarassingly parallel problem.
 
-On the downside (as you can assume based on the name of this approach), this meant that we were looking up the entire m x n grid, regardless of cell state. Usually in CA simulations, there are only a sparse set of cells that people care to observe. For example, if the user instantiated a grid of size 10,000 by 10,000, but there were only $<$10 active cells at any given time, that means that this algorithm is performing redundant work on the cells that aren't remotely close to these active cells, about 99.99\% of the work done is redundant. Cells in most CA simulations only affect the cells around them, and so we had to think of another approach that would potentially speed up our simulations significantly.
+On the downside (as you can assume based on the name of this approach), this meant that we were looking up the entire m by n grid, regardless of cell state. Usually in CA simulations, there are only a sparse set of cells that people care to observe. For example, if the user instantiated a grid of size 10,000 by 10,000, but there were only $<$10 active cells at any given time, that means that this algorithm is performing redundant work on the cells that aren't remotely close to these active cells, about 99.99\% of the work done is redundant. Cells in most CA simulations only affect the cells around them, and so we had to think of another approach that would potentially speed up our simulations significantly.
 
 \subsection{The 'Live-Cell Relative' Approach}
 There are a few main differences between the Live-Cell Relative (LCR) approach and the redundant approach. First, we initialized the grid with an array of pointers to all of the live cells that were instantiated by the user in the input file and assigned OpenMP threads to each of the cells in that array. This is not required in the previous approach. Another key difference is that the threads did not change the cell it was assigned to directly. Because we can obviously assume that the cells in the array are live, we update the next state of every cell around the live cell instead of the live cell itself. This works for most simulations because interesting interactions only ever happen around cells that are 'live'.
 
-Because each OpenMP thread updates cells that are around live cells instead of the cell itself, this opens up a few possible race conditions. If 2 live cells are next to each other, and both OpenMP threads that are updating the cells around those both end up updating the same cell, we want to make sure that the value for that cell gets updated appropriatelly. This is easily solved with locks, and it's what we did in our implementation. However, the performance of this algorithm can vary a lot more, depending on if the grid is sparse in the number of live cells, or if the grid is dense in the number of live cells. If the grid has a higher live cell to dead cell ratio, the runtime of the program would actually be worse, because the race conditions introduced would mean that the cells are not being updated efficiently, and the benefit of only looking around live cells isn't as important, because most of the grid is live.
+Because each OpenMP thread updates cells that are around live cells instead of the cell itself, this opens up a few possible race conditions. If 2 live cells are next to each other, and both OpenMP threads end up updating the same neighboring cell, we want to make sure that the neighbor value for that cell gets updated appropriatelly. This is easily solved with locks, and it's what we did in our implementation. However, the performance of this algorithm can vary a lot more, depending on if the grid is sparse in the number of live cells, or if the grid is dense in the number of live cells. If the grid has a higher live cell to dead cell ratio, the runtime of the program would actually be worse, because the race conditions introduced would mean that the cells are not being updated efficiently, and the benefit of only looking around live cells isn't as important, because most of the grid is live.
 
 \section{Results}
 
 \subsection{Game of Life}
-First, let's show the results of the redundant algorithm on talapas. For this, we instantiated a grid of 4,000 x 4,000 where we randomly generated live cells at about a 1/10 chance.
+First, let's show the results of the redundant algorithm on talapas. For this, we instantiated a grid of 4,000 x 4,000 where we randomly generated live cells at about a 1/10 chance. This meant that we initialized a sparse grid of live cells, where about 90\% of the cells were dead at the start.
 
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\linewidth]{redundant_4000.PNG}
-\caption{\label{fig:chart_1}Redundant algorithm results.}
+\caption{\label{fig:chart_1}Redundant algorithm results on Talapas.}
 \end{figure}
 
-For the LCR algorithm, there is a much different trend in how performance differs based on the number of thread counts. Unfortunately, we were not able to test accurately on Talapas to compare the 2 algorithms. At some point in implementing the LCR algorithm, the runtime behavior for the redundant algorithm changed somehow, and we couldn't get consistent results. On our local machines, however, there were more readable results that still have merit, since they highlight the difference between the 2 algorithms. Listed below are both charts run on a Macbook Pro 2013 running Ubuntu natively, with an intel i5 chip.
+As you can see from Figure 1 above, the time it takes to update each generation is halved when we double the number of OpenMP threads. This makes sense, because each OpenMP thread is independently updating cells in the grid (an example of an embarassingly parallel approach). We also verified that the results for each generation in the simulation itself was correct by printing out the grid after each generation. This is an impressive speedup, however we would like to see if we can avoid the redundancy and still see a good amount of performance improvement.
 
-\begin{figure}[ht]
+Before we get into the LCR algorithm, there is a much different trend in how performance differs based on the number of thread counts. Unfortunately, we were not able to test accurately on Talapas to compare the 2 algorithms. At some point in implementing the LCR algorithm, the runtime behavior for the redundant algorithm changed somehow, and we couldn't get consistent results. On our local machines, however, there were more readable results that still have merit, since they highlight the difference between the 2 algorithms. Listed below are both charts run on a Macbook Pro 2013 running Ubuntu natively, with an intel i5 chip.
+
+\begin{figure}[!ht]
 \centering
 \includegraphics[width=\linewidth]{redundant_10000.PNG}
 \caption{\label{fig:chart_2}Redundant algorithm results.}
 \end{figure}
 
-The above chart is the same algorithm as before, but on a grid of 10,000 x 10,000 cells. Note that we do not get a near-perfect speed improvement as we double the cores. 
+The above chart is the redundant algorithm as before, but on a grid of 10,000 x 10,000 cells. Note that we do not get a near-perfect speed improvement as we double the cores, but we have this here as a baseline comparison for the LCR results in figure 3 on the next page.
 
 \begin{figure}[!ht]
 \centering
@@ -67,6 +78,8 @@ The above chart is the same algorithm as before, but on a grid of 10,000 x 10,00
 Now there are quite a few things to unpack with the LCR results. Let's discuss some things before we talk about how increasing thread count actually made the run time of each generation even worse. First, the time it takes to go through each generation and update the cell's next state improves over the course of the program itself. This is due to 2 main reasons. First, given the fact that live cells have stricter rules regarding their 'liveness' means that most of the time, there are less live cells over the course of a simulation. The exceptions would be for large pulsars, many gliders, etc.
 
 The next reason has to do with data that exists in cache. Because the LCR algorithm deals with cells that are nearby live cells, on the first iteration of the simulation, the vector for the live cells are in cache, but the location of these cells in the grid are not necessarily there. Because the Game of Life is predictable in where cells will appear for the next generation, we get to utilize spacial locality where cell activity goes on. When the 2nd generation of live cells are produced, the locations of those nearby cells are still in cache because we used them for the previous generation. Thus, as the program continues running, predicting where important cells are become easier, since the behavior of those cells become more clear as time goes on.
+
+On the bright side, we do notice that the time it takes to update each generation in the LCR approach is less than the time it takes to update each generation in the redundant approach at 1 thread. So, the idea of the LCR approach is there, what's needed is to go in and look at how OpenMP tasks are being assigned and generated, and rewrite the code so that we actually get a performance improvement.
 
 \subsection{Wildfire Simulations}
 

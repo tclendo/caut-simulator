@@ -8,12 +8,12 @@
 \usepackage{graphicx}
 \usepackage[colorlinks=true, allcolors=blue]{hyperref}
 \usepackage{indentfirst}
+%\usepackage{float}
 
 \begin{document}
 
 \title{CAUT: A Cellular Automata Simulation Framework for Parallel Programming Practice}
 \author{Zacree Carroll, Troy Clendenen, Raul Patel}
-
 \maketitle
 
 \section{Abstract}
@@ -36,12 +36,38 @@ Because each OpenMP thread updates cells that are around live cells instead of t
 \section{Results}
 
 \subsection{Game of Life}
+First, let's show the results of the redundant algorithm on talapas. For this, we instantiated a grid of 4,000 x 4,000 where we randomly generated live cells at about a 1/10 chance.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\linewidth]{redundant_4000.PNG}
+\caption{\label{fig:chart_1}Redundant algorithm results.}
+\end{figure}
+
+For the LCR algorithm, there is a much different trend in how performance differs based on the number of thread counts. Unfortunately, we were not able to test accurately on Talapas to compare the 2 algorithms. At some point in implementing the LCR algorithm, the runtime behavior for the redundant algorithm changed somehow, and we couldn't get consistent results. On our local machines, however, there were more readable results that still have merit, since they highlight the difference between the 2 algorithms. Listed below are both charts run on a Macbook Pro 2013 running Ubuntu natively, with an intel i5 chip.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\linewidth]{redundant_10000.PNG}
+\caption{\label{fig:chart_2}Redundant algorithm results.}
+\end{figure}
+
+The above chart is the same algorithm as before, but on a grid of 10,000 x 10,000 cells. Note that we do not get a near-perfect speed improvement as we double the cores. 
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\linewidth]{lcr_10000.PNG}
+\caption{\label{fig:chart_3}Live-Cell Relative algorithm results.}
+\end{figure}
+
+Now there are quite a few things to unpack with the LCR results. Let's discuss some things before we talk about how increasing thread count actually made the run time of each generation even worse. First, the time it takes to go through each generation and update the cell's next state improves over the course of the program itself. This is due to 2 main reasons. First, given the fact that live cells have stricter rules regarding their 'liveness' means that most of the time, there are less live cells over the course of a simulation. The exceptions would be for large pulsars, many gliders, etc.
+
+The next reason has to do with data that exists in cache. Because the LCR algorithm deals with cells that are nearby live cells, on the first iteration of the simulation, the vector for the live cells are in cache, but the location of these cells in the grid are not necessarily there. Because the Game of Life is predictable in where cells will appear for the next generation, we get to utilize spacial locality where cell activity goes on. When the 2nd generation of live cells are produced, the locations of those nearby cells are still in cache because we used them for the previous generation. Thus, as the program continues running, predicting where important cells are become easier, since the behavior of those cells become more clear as time goes on.
 
 \subsection{Wildfire Simulations}
 
 \subsection{Flocking Algorithms}
 
 \section{Conclusion}
-
 
 \end{document}

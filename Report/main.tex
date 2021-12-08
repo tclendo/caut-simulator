@@ -17,8 +17,12 @@
 \maketitle
 
 \section{Abstract}
+Our project aimed to find new ways to parallelize cellular automata. We began with what we considered to be a naive approach which essentially iterated across an entire grid of cells doing processing state updates even when some of those state updates had no chance of changing the state of that cell i.e. the cell had no live neighbors in its vicinity thus could not come to life. 
+\par
+The second approach we deemed the "Live Cell Relative Approach". This approach involved only looking at cells who were capable of coming to life on a given iteration thus saving time on the overhead of iterating the entire grid performing some unnecessary updates. Results initially seemed promising but we came to see that they were somewhat inconsistent. Because of this inconsistency we cannot definitively say that our Live Cell Relative algorithm in its current state can outperform the naive version.
 
 \section{Introduction to Cellular Automata}
+Cellular Automata (C.A.) are a very popular field of study and important framework when it comes to the realm of computational simulations. Its use spans the spectrum from simulating bio-remediation of contaminated soils to fluid flow simulations. CAMEL for example is a framework which abstracts away some of the hardware specifics of performing such computational simulations and allows the user to focus more time and energy on fine tuning their C.A. implementation. \cite{Cann95} A cellular automaton can be thought of as a collection of cells from which complex behaviors can arise from a relatively simple set of rules. As can be gathered from this view of C.A. it clearly is a very useful method for framing certain phenomena whose characteristics match the specification.
 
 \section{Methodology}
 Our goal with this project was to obviously get practice with parallel programming. So, we figured since many of our CA simulations we wanted to implement had already been done before, we did not want to look up how others implemented it until after we finished. So, we came up with 2 main approaches to how we could parallelize the simulations we wanted to.
@@ -54,7 +58,7 @@ For the LCR algorithm, there is a much different trend in how performance differ
 
 The above chart is the same algorithm as before, but on a grid of 10,000 x 10,000 cells. Note that we do not get a near-perfect speed improvement as we double the cores. 
 
-\begin{figure}[ht]
+\begin{figure}[!ht]
 \centering
 \includegraphics[width=\linewidth]{lcr_10000.PNG}
 \caption{\label{fig:chart_3}Live-Cell Relative algorithm results.}
@@ -66,8 +70,29 @@ The next reason has to do with data that exists in cache. Because the LCR algori
 
 \subsection{Wildfire Simulations}
 
+\subsubsection{Implementation}
+For our wildfire simulation we wanted to keep it as simple as possible while also producing something that behaved in a way similar to how a wildfire would spread in real life. With a few simple rules and extra attributes in the cells we were able to accomplish something we felt looked good.
+\par
+The attributes we added were cell health/burnable material (0, 50] and a percentage of dry brush (0, 1] each initialized to a random value for every cell. The grid is initialized in a specific way so as to produce interesting output because a fire simulation where the fire does not spread is just not interesting. If a cell is not currently alive and still has hp and also has two neighbors that are alive then its chance to come alive/ignite is based on its percentage of dry brush it contains. If a cell is alive/on fire then it will lose a certain amount of its health every turn as would happen during a real fire. Both of these values were tinkered with a fair amount in an attempt to fine tune the fire spread to make it appear to be more realistic in the way that it moved through the cells. 
+\par
+Our sample runs for the fire simulation consisted of 20 runs at each thread count and each run calculated the simulation for roughly 50 iterations. We tried various grid sizes from 1,000 x 1,000 to 10,000 x 10,000 and eventually settled on a 5,000 x 5,000 size grid. The reason behind this is that we wanted a large enough grid that the amount of work to do was not trivial but also small enough that we did not spending days running our simulation to gather and compile our results. 
+\subsubsection{Wildfire Results}
+Unfortunately we ran into some very troubling issues when attempting to run our simulations on talapas. There were certain attempts that would never finish and others that would finish in a suspiciously short amount of time. However running locally we were not able to reproduce these problems on either of the two machines that we ran our simulations on. Below you will see a graph depicting run times via a Ryzen 5 2600x 6 core machine.
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\linewidth]{FireSimResGraph.PNG}
+    \caption{Fire Simulation Performance Results}
+    \label{fig:fireR}
+\end{figure}
+\par
+As can be seen from the data we were able to achieve speed up with increasing the thread count for this algorithm which came as little surprise to us. We had planned to apply the Live Cell Relative approach to this algorithm given that it is not rule set specific however as mentioned previously we encountered some troubling issues there as well. However we speculate that the Live Cell Relative algorithm may not actually produce much speed up for the wildfire simulation because of how the cells tend to behave. Typically on what we would consider to be a useful/interesting trial of the simulation (i.e. the fire doesn't immediately burn out) large clusters of cells are alive simultaneously. This means that even if we only considered certain cells who have the potential to ignite at some point the Live Cell Relative algorithm would degenerate back into the naive approach where we are simply iterating through the entire grid.
+\\
+
 \subsection{Flocking Algorithms}
 
 \section{Conclusion}
+
+\bibliographystyle{alpha}
+\bibliography{bibCol}
 
 \end{document}

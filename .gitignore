@@ -62,6 +62,4 @@ Thumbs.db
 compile_commands.json
 
 # Misc folders
-Batch_Files/
-Report/
-outputs/
+Misc/

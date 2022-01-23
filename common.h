@@ -4,6 +4,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+// This file was written by Jee Whan Choi and used in this project
+// with his permission for class. 
+//
+
 static inline uint64_t ReadTSC(void)
 {
 #if defined(__i386__)

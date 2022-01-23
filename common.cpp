@@ -3,6 +3,9 @@
 
 #include "common.h"
 
+// This file was written by Jee Whan Choi and used in this project
+// with his permission for class. 
+
 static double g_ticks_persecond = 0.0;
 
 void InitTSC(void)
